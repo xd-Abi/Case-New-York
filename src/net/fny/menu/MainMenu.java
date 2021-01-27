@@ -9,6 +9,7 @@ import static org.lwjgl.opengl.GL11.glBlendFunc;
 import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
+import net.fny.core.audio.Sound;
 import net.fny.core.CoreEngine;
 import net.fny.core.math.Vec2f;
 import net.fny.core.scenegraph.Scene;
@@ -31,7 +32,7 @@ public class MainMenu extends Scene
 	
 	@Override
 	public void Initialize() 
-	{	
+	{
 		AddObject(new GuiBackground(BACKGROUND));
 		AddObject(title = new GuiBackground(TITLE, new Vec2f(-0.165f, 0.1f), new Vec2f(0.7f, 0.7f)));
 		AddObject(playButton = new GuiButton(PLAY_BUTTON, new Vec2f(-0.9f, -0.3f),  new Vec2f(0.4f, 0.17f)));
@@ -45,13 +46,14 @@ public class MainMenu extends Scene
 	public void Update() 
 	{	
 		super.Update();
-		
-		if (playButton.IsPressed())
+
+
+		if (playButton.IsHover()) {
 			System.out.println("TEST");
-		
-		if (settingsButton.IsPressed())
+		}
+		if (settingsButton.IsHover()) {
 			System.out.println("TESTSTTST");
-		
+		}
 		if (quitButton.IsPressed())
 			CoreEngine.Stop();
 	}

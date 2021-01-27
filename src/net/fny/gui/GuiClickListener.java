@@ -1,25 +1,29 @@
 package net.fny.gui;
 
+import net.fny.core.audio.Sound;
 import org.lwjgl.glfw.GLFW;
 
-import net.fny.audio.SoundManager;
 import net.fny.core.math.Vec2f;
 import net.fny.core.platform.Mouse;
 import net.fny.core.scenegraph.NodeComponent;
+import org.lwjgl.system.CallbackI;
 
 public class GuiClickListener extends NodeComponent
 {
-	
+
 	private boolean isHover;
 	private boolean isPressed;
-	
+
 	private Vec2f position;
 	private Vec2f scale;
-	
+	private Sound clickSound;
+
 	public GuiClickListener(Vec2f position, Vec2f scale)
 	{
 		this.position = position;
 		this.scale = scale;
+		this.clickSound = new Sound("bounce.wav");
+		this.clickSound.SetPosition(position.getX() + scale.getX() / 2, position.getY() + scale.getY() / 2);
 	}
 	
 	@Override
@@ -32,17 +36,12 @@ public class GuiClickListener extends NodeComponent
 			isHover = true;
 			moveX(0.01f);
 			
-			if (Mouse.IsButtonPushed(GLFW.GLFW_MOUSE_BUTTON_1)) {
-				
+			if (Mouse.IsButtonPushed(GLFW.GLFW_MOUSE_BUTTON_1))
+			{
+				clickSound.Play();
 				isPressed = true;
-				try {
-					SoundManager.Initalize();
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 			}
-			
+
 		}
 		else if (!isPressed)
 		{

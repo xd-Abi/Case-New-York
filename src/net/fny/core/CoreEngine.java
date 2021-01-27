@@ -1,5 +1,7 @@
 package net.fny.core;
 
+import net.fny.core.audio.Sound;
+import net.fny.core.audio.SoundManager;
 import net.fny.core.platform.Keyboard;
 import net.fny.core.platform.Mouse;
 import net.fny.core.platform.Window;
@@ -34,8 +36,11 @@ public class CoreEngine
 		Window.CreateWindow();
 		Keyboard.Create();
 		Mouse.Create();
-		RenderingEngine.Initialize();	
-		
+
+		SoundManager.Initialize();
+		RenderingEngine.Initialize();
+
+
 		game.Initialize();
 	}
 	
@@ -118,6 +123,7 @@ public class CoreEngine
 	private static void CleanUp()
 	{
 		RenderingEngine.CleanUp();
+		SoundManager.CleanUp();
 		Keyboard.Destroy();
 		Mouse.Destroy();
 		Window.Dispose();

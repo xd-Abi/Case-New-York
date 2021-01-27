@@ -1,5 +1,6 @@
 package net.fny;
 
+import net.fny.core.audio.SoundManager;
 import net.fny.core.CoreEngine;
 import net.fny.core.Game;
 import net.fny.core.RenderingEngine;
@@ -20,11 +21,9 @@ public class Main implements Game
 	public void Initialize() 
 	{
 		RenderingEngine.SetScene(new MainMenu());
-	
-	
 	}
-	
-	public static GameState getGameState() 
+
+	public static GameState getGameState()
 	{
 		return gameState;
 	}
