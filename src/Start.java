@@ -1,4 +1,4 @@
-import net.fny.Main;
+import net.cny.Main;
 
 public class Start
 {
