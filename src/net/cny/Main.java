@@ -1,12 +1,8 @@
 package net.cny;
 
-import net.cny.core.CoreEngine;
-import net.cny.core.Game;
-import net.cny.core.RenderingEngine;
-import net.cny.menu.MainMenu;
-import net.cny.state.GameState;
+import net.cny.gui.menu.MainMenu;
 
-public class Main implements Game
+public class Main
 {
 	
 	private static GameState gameState;
@@ -16,8 +12,7 @@ public class Main implements Game
 		CoreEngine.Start(this);
 	}
 	
-	@Override
-	public void Initialize() 
+	public void Initialize()
 	{
 		RenderingEngine.SetScene(new MainMenu());
 	}

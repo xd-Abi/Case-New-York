@@ -1,18 +1,18 @@
 package net.cny.gui;
 
-import net.cny.core.math.Vec2f;
-import net.cny.core.scenegraph.GameObject;
-import net.cny.core.texturing.Texture2D;
+import net.cny.math.Vec2f;
+import net.cny.scenegraph.GameObject;
+import net.cny.image.Image;
 
 public class GuiButton extends GameObject
 {
 	
-	private GuiClickListener listener;
+	private final GuiClickListener listener;
 	
 	public GuiButton(String texturePath, Vec2f position, Vec2f scale) 
 	{
-		super(new Texture2D(texturePath));
-		super.SetTraformation(position, scale);
+		super(new Image(texturePath));
+		super.SetTransformation(position, scale);
 		
 		listener = new GuiClickListener(position, scale);
 		AddComponent(listener);

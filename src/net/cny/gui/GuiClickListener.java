@@ -1,11 +1,10 @@
 package net.cny.gui;
 
-import net.cny.core.audio.Sound;
+import net.cny.audio.Sound;
+import net.cny.math.Vec2f;
+import net.cny.platform.Mouse;
+import net.cny.scenegraph.NodeComponent;
 import org.lwjgl.glfw.GLFW;
-
-import net.cny.core.math.Vec2f;
-import net.cny.core.platform.Mouse;
-import net.cny.core.scenegraph.NodeComponent;
 
 public class GuiClickListener extends NodeComponent
 {
@@ -29,7 +28,7 @@ public class GuiClickListener extends NodeComponent
 	public void Update() 
 	{
 		
-		if (Mouse.GetOpenGLX() >= position.getX() && position.getX() + scale.getX() >= Mouse.GetOpenGLX() && 
+		if (Mouse.GetOpenGLX() >= position.getX() && position.getX() + scale.getX() >= Mouse.GetOpenGLX() &&
 			Mouse.GetOpenGLY() >= position.getY() && position.getY() + scale.getY() >= Mouse.GetOpenGLY())
 		{
 			isHover = true;
