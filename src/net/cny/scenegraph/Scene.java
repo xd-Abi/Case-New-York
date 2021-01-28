@@ -1,11 +1,12 @@
 package net.cny.scenegraph;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Scene 
 {
 	
-	private ArrayList<GameObject> objects;
+	private final ArrayList<GameObject> objects;
 	
 	public Scene()
 	{
@@ -23,7 +24,7 @@ public class Scene
 	public void Render() 
 	{
 		for (GameObject object : objects)
-			object.Render();		
+			object.Render();
 	}
 	
 	public void CleanUp() 
@@ -31,7 +32,7 @@ public class Scene
 		for (GameObject object : objects)
 			object.CleanUp();
 	}
-	
+
 	public void AddObject(GameObject object)
 	{
 		objects.add(object);

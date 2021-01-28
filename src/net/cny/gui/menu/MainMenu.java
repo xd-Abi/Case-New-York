@@ -1,5 +1,7 @@
 package net.cny.gui.menu;
 
+import static net.cny.util.ResourceManager.MainMenu.*;
+
 import static org.lwjgl.opengl.GL11.GL_BLEND;
 import static org.lwjgl.opengl.GL11.GL_DEPTH_TEST;
 import static org.lwjgl.opengl.GL11.GL_ONE_MINUS_SRC_ALPHA;
@@ -9,6 +11,8 @@ import static org.lwjgl.opengl.GL11.glDisable;
 import static org.lwjgl.opengl.GL11.glEnable;
 
 import net.cny.CoreEngine;
+import net.cny.GameState;
+import net.cny.Main;
 import net.cny.math.Vec2f;
 import net.cny.scenegraph.Scene;
 import net.cny.gui.GuiBackground;
@@ -19,28 +23,32 @@ import net.cny.util.ResourceManager;
 public class MainMenu extends Scene
 {
 
-	private GuiBackground title;
-	private GuiButton playButton;
-	private GuiButton settingsButton;
-	private GuiButton quitButton;
-	
+	private GuiButton[] buttons;
+
 	public MainMenu() 
 	{
-		
+		Main.setGameState(GameState.MAIN_MENU);
 	}
 	
 	@Override
 	public void Initialize() 
 	{
 		AddObject(new GuiBackground(ResourceManager.MainMenu.BACKGROUND));
-		AddObject(title = new GuiBackground(ResourceManager.MainMenu.TITLE, new Vec2f(-0.165f, 0.1f), new Vec2f(0.7f, 0.7f)));
-		AddObject(playButton = new GuiButton(ResourceManager.MainMenu.PLAY_BUTTON, new Vec2f(-0.9f, -0.3f),  new Vec2f(0.4f, 0.17f)));
-		AddObject(settingsButton = new GuiButton(ResourceManager.MainMenu.SETTINGS_BUTTON, new Vec2f(-0.9f, -0.52f), new Vec2f(0.4f, 0.17f)));
-		AddObject(quitButton = new GuiButton(ResourceManager.MainMenu.QUIT_BUTTON, new Vec2f(-0.9f, -0.74f), new Vec2f(0.4f, 0.17f)));
-	
 
+		GuiBackground title = new GuiBackground(TITLE);
+		title.SetTransformation(new Vec2f(-0.165f, 0.1f), new Vec2f(0.7f, 0.7f));
 		title.AddComponent(new GuiClickListener(new Vec2f(-0.95f, 0.1f), new Vec2f(0.7f, 0.7f)));
 
+		AddObject(title);
+
+		buttons = new GuiButton[3];
+
+		buttons[0] = new GuiButton(PLAY_BUTTON, new Vec2f(-0.9f, -0.3f),  new Vec2f(0.4f, 0.17f));
+		buttons[1] = new GuiButton(SETTINGS_BUTTON, new Vec2f(-0.9f, -0.52f), new Vec2f(0.4f, 0.17f));
+		buttons[2] = new GuiButton(QUIT_BUTTON, new Vec2f(-0.9f, -0.74f), new Vec2f(0.4f, 0.17f));
+
+		for (GuiButton button : buttons)
+			AddObject(button);
 	}
 	
 	@Override
@@ -48,14 +56,7 @@ public class MainMenu extends Scene
 	{	
 		super.Update();
 
-
-		if (playButton.IsHover()) {
-			System.out.println("TEST");
-		}
-		if (settingsButton.IsHover()) {
-			System.out.println("TESTSTTST");
-		}
-		if (quitButton.IsPressed())
+		if (buttons[2].IsPressed())
 			CoreEngine.Stop();
 	}
 	
@@ -71,10 +72,5 @@ public class MainMenu extends Scene
 		
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
-	}
-	
-	@Override
-	public void CleanUp() {
-		super.CleanUp();
 	}
 }
