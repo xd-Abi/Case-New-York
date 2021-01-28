@@ -18,7 +18,6 @@ import net.cny.scenegraph.Scene;
 import net.cny.gui.GuiBackground;
 import net.cny.gui.GuiButton;
 import net.cny.gui.GuiClickListener;
-import net.cny.util.ResourceManager;
 
 public class MainMenu extends Scene
 {
@@ -33,7 +32,7 @@ public class MainMenu extends Scene
 	@Override
 	public void Initialize() 
 	{
-		AddObject(new GuiBackground(ResourceManager.MainMenu.BACKGROUND));
+		AddObject(new GuiBackground(BACKGROUND));
 
 		GuiBackground title = new GuiBackground(TITLE);
 		title.SetTransformation(new Vec2f(-0.165f, 0.1f), new Vec2f(0.7f, 0.7f));
