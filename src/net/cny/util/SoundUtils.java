@@ -15,13 +15,13 @@ import java.nio.ByteBuffer;
 public class SoundUtils
 {
 
-    public static long createBufferData(int p) throws UnsupportedAudioFileException, IOException {
+    public static long createBufferData(int p, String soundPath) throws UnsupportedAudioFileException, IOException {
 
         final int MONO = 1, STEREO = 2;
 
         AudioInputStream stream = null;
 
-        InputStream audioSrc = ResourceLoader.GetResource("bounce.wav");
+        InputStream audioSrc = ResourceLoader.GetResource(soundPath);
         InputStream bufferedIn = new BufferedInputStream(audioSrc);
         stream = AudioSystem.getAudioInputStream(bufferedIn);
 

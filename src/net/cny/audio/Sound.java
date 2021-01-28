@@ -22,7 +22,7 @@ public class Sound
 
         try
         {
-            SoundUtils.createBufferData(buffer.get(0));
+            SoundUtils.createBufferData(buffer.get(0), soundPath);
         }
         catch (UnsupportedAudioFileException | IOException e)
         {
@@ -32,10 +32,10 @@ public class Sound
         source = AL10.alGenSources();
         AL10.alSourcei(source, AL10.AL_BUFFER, buffer.get(0));
         AL10.alSource3f(source, AL10.AL_POSITION, 0, 0, 0f);
-        AL10.alSource3f(source, AL10.AL_VELOCITY, -1f, 0f, 0f);
+        AL10.alSource3f(source, AL10.AL_VELOCITY, 0f, 0f, 0f);
 
         //fun stuff
-        AL10.alSourcef(source, AL10.AL_PITCH, -2f);
+        AL10.alSourcef(source, AL10.AL_PITCH, 1f);
         AL10.alSourcef(source, AL10.AL_GAIN, 1f);
         AL10.alSourcei(source, AL10.AL_LOOPING, AL10.AL_FALSE);
 
@@ -62,5 +62,10 @@ public class Sound
     public void SetPosition(float x, float y)
     {
         AL10.alSource3f(source, AL10.AL_POSITION, x, y, 0f);
+    }
+
+    public void SetPitch(float p)
+    {
+        AL10.alSourcef(source, AL10.AL_PITCH, p);
     }
 }

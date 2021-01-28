@@ -11,6 +11,11 @@ public class ResourceManager
 		public static final String SETTINGS_BUTTON = "menu/main/settings-button.png";
 		public static final String QUIT_BUTTON = "menu/main/quit-button.png";		
 	}
+
+	public static class ButtonAudio
+	{
+		public static final String CLICK_SOUND = "audio/button/click_sound.wav";
+	}
 	
 	// Default Object and Texture Shader:
 	

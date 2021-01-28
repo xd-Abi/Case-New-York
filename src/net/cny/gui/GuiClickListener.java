@@ -1,5 +1,7 @@
 package net.cny.gui;
 
+import static net.cny.util.ResourceManager.ButtonAudio.*;
+
 import net.cny.audio.Sound;
 import net.cny.math.Vec2f;
 import net.cny.platform.Mouse;
@@ -15,13 +17,20 @@ public class GuiClickListener extends NodeComponent
 	private Vec2f position;
 	private Vec2f scale;
 	private Sound clickSound;
+	private Sound hoverSound;
+
+	private boolean hoverSoundPlayed;
 
 	public GuiClickListener(Vec2f position, Vec2f scale)
 	{
 		this.position = position;
 		this.scale = scale;
-		this.clickSound = new Sound("bounce.wav");
-		this.clickSound.SetPosition(position.getX() + scale.getX() / 2, position.getY() + scale.getY() / 2);
+		clickSound = new Sound(CLICK_SOUND);
+		clickSound.SetPosition(position.getX() + scale.getX() / 2, position.getY() + scale.getY() / 2);
+
+		hoverSound = new Sound(CLICK_SOUND);
+		hoverSound.SetPosition(position.getX() + scale.getX() / 2, position.getY() + scale.getY() / 2);
+		hoverSound.SetPitch(4);
 	}
 	
 	@Override
@@ -46,6 +55,14 @@ public class GuiClickListener extends NodeComponent
 			moveX(-0.01f);
 			isHover = false;
 		}
+
+		if (isHover && !hoverSoundPlayed){
+			hoverSound.Play();
+			hoverSoundPlayed = true;
+		}
+
+		if (!isHover)
+			hoverSoundPlayed = false;
 	}
 	
 	private void moveX(float dx)
