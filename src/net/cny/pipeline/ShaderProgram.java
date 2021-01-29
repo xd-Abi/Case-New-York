@@ -7,13 +7,13 @@ import static org.lwjgl.opengl.GL31.*;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.cny.math.Matrix4f;
 import net.cny.scenegraph.Node;
+import org.joml.Vector2f;
+import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.opengl.GL20;
 
-import net.cny.math.Matrix4f;
-import net.cny.math.Vec2f;
-import net.cny.math.Vec3f;
-import net.cny.math.Vec4f;
 import net.cny.util.BufferUtil;
 import net.cny.util.ResourceLoader;
 
@@ -136,22 +136,22 @@ public class ShaderProgram
         glUniform1f(uniforms.get(uniformName), value);
     }
 
-    public void SetUniform(String uniformName, Vec2f value) {
+    public void SetUniform(String uniformName, Vector2f value) {
     	
-        glUniform2f(uniforms.get(uniformName), value.getX(), value.getY());
+        glUniform2f(uniforms.get(uniformName), value.x, value.y);
     }
 
-    public void SetUniform(String uniformName, Vec3f value) 
+    public void SetUniform(String uniformName, Vector3f value)
     {
-        glUniform3f(uniforms.get(uniformName), value.getX(), value.getY(), value.getZ());
+        glUniform3f(uniforms.get(uniformName), value.x, value.y, value.z);
     }
 
-    public void SetUniform(String uniformName, Vec4f value) 
+    public void SetUniform(String uniformName, Vector4f value)
     {
-        glUniform4f(uniforms.get(uniformName), value.getX(), value.getY(), value.getZ(), value.getW());
+        glUniform4f(uniforms.get(uniformName), value.x, value.y, value.z, value.w);
     }
 
-    public void SetUniform(String uniformName, Matrix4f value) 
+    public void SetUniform(String uniformName, Matrix4f value)
     {
         GL20.glUniformMatrix4fv(uniforms.get(uniformName), true, BufferUtil.CreateFlippedBuffer(value));
     }

@@ -6,6 +6,7 @@ public class ResourceManager
 	public static class MainMenu 
 	{
 		public static final String BACKGROUND = "menu/main/background.png";
+		public static final String BACKGROUND_1 = "menu/main/background.png";
 		public static final String TITLE = "menu/main/title.png";
 		public static final String PLAY_BUTTON = "menu/main/play-button.png";
 		public static final String SETTINGS_BUTTON = "menu/main/settings-button.png";
@@ -17,6 +18,7 @@ public class ResourceManager
 	public static class PauseMenu
 	{
 		public static final String RESUME_BUTTON = "menu/pause/resume-button.png";
+		public static final String BACKGROUND = "menu/pause/background.png";
 	}
 
 	public static class ButtonAudio

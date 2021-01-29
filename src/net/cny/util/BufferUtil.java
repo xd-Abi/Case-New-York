@@ -4,9 +4,8 @@ import java.nio.DoubleBuffer;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
-import org.lwjgl.BufferUtils;
-
 import net.cny.math.Matrix4f;
+import org.lwjgl.BufferUtils;
 
 public class BufferUtil {
 
@@ -44,13 +43,13 @@ public class BufferUtil {
         return buffer;
     }
 
-    public static FloatBuffer CreateFlippedBuffer(Matrix4f matrix) 
+    public static FloatBuffer CreateFlippedBuffer(Matrix4f matrix)
     {
         FloatBuffer buffer = CreateFloatBuffer(4 * 4);
 
         for (int i = 0; i < 4; i++)
             for (int j = 0; j < 4; j++)
-                buffer.put(matrix.get(i, j));
+                buffer.put(matrix.Get(i, j));
 
         buffer.flip();
 

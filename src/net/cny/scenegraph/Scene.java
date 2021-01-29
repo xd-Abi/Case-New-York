@@ -1,44 +1,43 @@
 package net.cny.scenegraph;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class Scene 
 {
 	
-	private final ArrayList<GameObject> objects;
+	private final ArrayList<Node> objects;
 	
 	public Scene()
 	{
 		objects = new ArrayList<>();
 	}
 	
-	public void Initialize() {};
+	public void Initialize() {}
 	
-	public void Update() 
+	public void Update(float delta)
 	{
-		for (GameObject object : objects)
-			object.Update();
+		for (Node object : objects)
+			object.Update(delta);
 	}
 	
 	public void Render() 
 	{
-		for (GameObject object : objects)
+		for (Node object : objects)
 			object.Render();
 	}
 	
 	public void CleanUp() 
 	{
-		for (GameObject object : objects)
+		for (Node object : objects)
 			object.CleanUp();
 	}
 
-	public GameObject GetObject(int index)
+	public Node GetNode(int index)
 	{
 		return objects.get(index);
 	}
 
-	public void AddObject(GameObject object)
+	public void AddNode(Node object)
 	{
 		objects.add(object);
 	}

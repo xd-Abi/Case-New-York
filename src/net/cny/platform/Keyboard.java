@@ -4,10 +4,12 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.ArrayList;
 
+import net.cny.platform.Window;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 public class Keyboard 
 {
+
 	private static final ArrayList<Integer> pushedKeys = new ArrayList<>();
 	private static final ArrayList<Integer> keysHolding = new ArrayList<>();
 	private static final ArrayList<Integer> releasedKeys = new ArrayList<>();

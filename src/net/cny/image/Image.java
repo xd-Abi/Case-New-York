@@ -17,9 +17,9 @@ import net.cny.util.ImageLoader;
 public class Image
 {
 	
-	private int id;
-	private int width;
-	private int height;
+	private final int id;
+	private final int width;
+	private final int height;
 
 	public Image(String file)
 	{
@@ -27,8 +27,7 @@ public class Image
 		id = data[0];
 		width = data[1];
 		height = data[2];
-	
-		//NoFilter();
+
 		TrilinearFilter();
 	}
 	

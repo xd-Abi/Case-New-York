@@ -5,7 +5,7 @@ public abstract class NodeComponent
 	
 	private Node parent;
 	
-	public void Update() {};
+	public void Update(float delta) {};
 	
 	public void Render() {};
 	

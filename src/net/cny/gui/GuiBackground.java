@@ -1,29 +1,26 @@
 package net.cny.gui;
 
-import net.cny.math.Vec2f;
-import net.cny.pipeline.ShaderProgram;
-import net.cny.scenegraph.GameObject;
 import net.cny.image.Image;
+import net.cny.scenegraph.Node;
+import org.joml.Vector2f;
 
-public class GuiBackground extends GameObject
+public class GuiBackground extends Node
 {
-
-	public GuiBackground(Image image, ShaderProgram shaderProgram)
-	{
-		super(image, shaderProgram);
-		super.SetTransformation(new Vec2f(-1,-1), new Vec2f(2, 2));
-	}
 
 	public GuiBackground(String texturePath) 
 	{
-		super(new Image(texturePath));
-		super.SetTransformation(new Vec2f(-1,-1), new Vec2f(2, 2));
+		super();
+
+		SetTransformation(new Vector2f(-1,-1), new Vector2f(2, 2));
+		AddRenderer(new Image(texturePath));
 	}
 
-	public GuiBackground(String texturePath, Vec2f position, Vec2f scale) 
+	public GuiBackground(String texturePath, Vector2f position, Vector2f scale)
 	{
-		super(new Image(texturePath));
-		super.SetTransformation(position, scale);
+		super();
+
+		SetTransformation(position, scale);
+		AddRenderer(new Image(texturePath));
 	}
 	
 }

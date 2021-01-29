@@ -15,21 +15,25 @@ public class Window
 	private static long id;
 	private static int width;
 	private static int height;
-	
-	public static void CreateWindow()
+
+	public static void Initialize()
 	{
 		if (!glfwInit())
 		{
 			throw new IllegalStateException("Error: GLFW couldn't initialize");
 		}
-		
+
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
 		glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-		
+	}
+
+	public static void CreateWindow()
+	{
 		GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+		assert vidMode != null;
 		width = vidMode.width();
 		height = vidMode.height();
 
