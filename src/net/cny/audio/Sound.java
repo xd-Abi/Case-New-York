@@ -64,6 +64,11 @@ public class Sound
         AL10.alSource3f(source, AL10.AL_POSITION, x, y, 0f);
     }
 
+    public void SetLoop(boolean a)
+    {
+        AL10.alSourcei(source, AL10.AL_LOOPING, a ? AL10.AL_TRUE : AL10.AL_FALSE);
+    }
+
     public void SetPitch(float p)
     {
         AL10.alSourcef(source, AL10.AL_PITCH, p);

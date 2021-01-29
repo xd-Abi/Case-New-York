@@ -2,7 +2,6 @@ package net.cny;
 
 import static org.lwjgl.opengl.GL11.*;
 
-import net.cny.gui.GuiBackground;
 import net.cny.model.Mesh;
 import net.cny.platform.Window;
 import net.cny.scenegraph.Scene;
@@ -56,6 +55,11 @@ public class RenderingEngine
 
 	public static void SetScene(Scene scene) 
 	{
+		if (RenderingEngine.scene != null)
+		{
+			RenderingEngine.scene.CleanUp();
+		}
+
 		scene.Initialize();
 		RenderingEngine.scene = scene;
 	}

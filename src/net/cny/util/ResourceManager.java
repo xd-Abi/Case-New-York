@@ -14,6 +14,11 @@ public class ResourceManager
 		public static final String BACKGROUND_AUDIO = "menu/main/background_audio.wav";
 	}
 
+	public static class PauseMenu
+	{
+		public static final String RESUME_BUTTON = "menu/pause/resume-button.png";
+	}
+
 	public static class ButtonAudio
 	{
 		public static final String CLICK_SOUND = "audio/button/click_sound.wav";
