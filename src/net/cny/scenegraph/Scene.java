@@ -33,6 +33,11 @@ public class Scene
 			object.CleanUp();
 	}
 
+	public GameObject GetObject(int index)
+	{
+		return objects.get(index);
+	}
+
 	public void AddObject(GameObject object)
 	{
 		objects.add(object);

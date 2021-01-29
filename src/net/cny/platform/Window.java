@@ -2,8 +2,12 @@ package net.cny.platform;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import net.cny.util.ImageLoader;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.opengl.GL;
+
+import java.nio.ByteBuffer;
 
 public class Window 
 {
@@ -28,17 +32,27 @@ public class Window
 		GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
 		width = vidMode.width();
 		height = vidMode.height();
+
 		id = glfwCreateWindow(width, height, "Fall New York", glfwGetPrimaryMonitor(), 0);
 		
 		if (id == 0)
 		{
 			throw new IllegalStateException("Error: Failed to create the GLFW window");
 		}
-		
+
+		ByteBuffer bufferedImage = ImageLoader.LoadImageToByteBuffer("icon.png");
+		GLFWImage image = GLFWImage.malloc();
+		image.set(235, 300, bufferedImage);
+
+		GLFWImage.Buffer images = GLFWImage.malloc(1);
+		images.put(0, image);
+
+		glfwSetWindowIcon(id, images);
+
 		glfwMakeContextCurrent(id);
 		GL.createCapabilities();
 	}
-	
+
 	public static void Update()
 	{
 		glfwPollEvents();
