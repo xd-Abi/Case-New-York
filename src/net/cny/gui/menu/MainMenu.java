@@ -13,16 +13,20 @@ import static org.lwjgl.opengl.GL11.glEnable;
 import net.cny.CoreEngine;
 import net.cny.GameState;
 import net.cny.Main;
+import net.cny.audio.Sound;
 import net.cny.math.Vec2f;
 import net.cny.scenegraph.Scene;
 import net.cny.gui.GuiBackground;
 import net.cny.gui.GuiButton;
 import net.cny.gui.GuiClickListener;
 
+import java.lang.ref.Cleaner;
+
 public class MainMenu extends Scene
 {
 
 	private GuiButton[] buttons;
+	private Sound backgroundAudio;
 
 	public MainMenu() 
 	{
@@ -32,6 +36,9 @@ public class MainMenu extends Scene
 	@Override
 	public void Initialize() 
 	{
+		backgroundAudio = new Sound(BACKGROUND_AUDIO);
+		backgroundAudio.Play();
+
 		AddObject(new GuiBackground(BACKGROUND));
 
 		GuiBackground title = new GuiBackground(TITLE);
@@ -71,5 +78,11 @@ public class MainMenu extends Scene
 		
 		glEnable(GL_DEPTH_TEST);
 		glDisable(GL_BLEND);
+	}
+
+	@Override
+	public void CleanUp() {
+		backgroundAudio.Stop();
+		super.CleanUp();
 	}
 }

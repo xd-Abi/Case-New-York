@@ -9,7 +9,9 @@ public class ResourceManager
 		public static final String TITLE = "menu/main/title.png";
 		public static final String PLAY_BUTTON = "menu/main/play-button.png";
 		public static final String SETTINGS_BUTTON = "menu/main/settings-button.png";
-		public static final String QUIT_BUTTON = "menu/main/quit-button.png";		
+		public static final String QUIT_BUTTON = "menu/main/quit-button.png";
+
+		public static final String BACKGROUND_AUDIO = "menu/main/background_audio.wav";
 	}
 
 	public static class ButtonAudio
