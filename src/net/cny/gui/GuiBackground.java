@@ -9,18 +9,16 @@ public class GuiBackground extends Node
 
 	public GuiBackground(String texturePath) 
 	{
-		super();
+		super(new Image(texturePath));
 
 		SetTransformation(new Vector2f(-1,-1), new Vector2f(2, 2));
-		AddRenderer(new Image(texturePath));
 	}
 
 	public GuiBackground(String texturePath, Vector2f position, Vector2f scale)
 	{
-		super();
+		super(new Image(texturePath));
 
 		SetTransformation(position, scale);
-		AddRenderer(new Image(texturePath));
 	}
 	
 }

@@ -65,14 +65,14 @@ public class ShaderProgram
         uniforms.put(uniform, uniformLocation);
     }
 
-    public void AddVertexShader(String vFile) 
+    public void AddVertexShader(String source)
     {
-        AddProgram(ResourceLoader.LoadShader(vFile), GL_VERTEX_SHADER);
+        AddProgram(source, GL_VERTEX_SHADER);
     }
 
-    public void AddFragmentShader(String fFile) 
+    public void AddFragmentShader(String source)
     {
-        AddProgram(ResourceLoader.LoadShader(fFile), GL_FRAGMENT_SHADER);
+        AddProgram(source, GL_FRAGMENT_SHADER);
     }
 
     public void CompileShader() 

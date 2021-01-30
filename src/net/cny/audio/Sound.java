@@ -13,6 +13,7 @@ public class Sound
 
     private final IntBuffer buffer;
     private final int source;
+    private long time;
 
     public Sound(String soundPath)
     {
@@ -23,6 +24,7 @@ public class Sound
         try
         {
             SoundUtils.createBufferData(buffer.get(0), soundPath);
+            time = buffer.get(0);
         }
         catch (UnsupportedAudioFileException | IOException e)
         {
@@ -72,5 +74,10 @@ public class Sound
     public void SetPitch(float p)
     {
         AL10.alSourcef(source, AL10.AL_PITCH, p);
+    }
+
+    public long GetTime()
+    {
+        return time;
     }
 }

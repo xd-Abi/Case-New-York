@@ -23,12 +23,16 @@ public class ResourceLoader
                 shaderSource.append(line).append("\n");
             }
 
+
+
             shaderReader.close();
         }
         catch(Exception e) {
             e.printStackTrace();
             System.exit(1);
         }
+
+        System.out.println(shaderSource.toString());
 
         return shaderSource.toString();
     }

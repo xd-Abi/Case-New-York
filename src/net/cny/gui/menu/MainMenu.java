@@ -12,7 +12,7 @@ import static org.lwjgl.opengl.GL11.glEnable;
 
 import net.cny.Main;
 import net.cny.renderer.MasterRenderer;
-import net.cny.scenegraph.Scene;
+import net.cny.scenegraph.Scenegraph;
 import net.cny.GameState;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
@@ -20,7 +20,7 @@ import net.cny.level.FirstScene;
 import net.cny.gui.GuiButton;
 import org.joml.Vector2f;
 
-public class MainMenu extends Scene
+public class MainMenu extends Scenegraph
 {
 
 	private GuiButton[] buttons;
@@ -28,7 +28,7 @@ public class MainMenu extends Scene
 
 	public MainMenu() 
 	{
-		GameState.SetState(GameState.State.MAIN_MENU);
+		GameState.SetState(GameState.MAIN_MENU);
 	}
 	
 	@Override
@@ -62,7 +62,7 @@ public class MainMenu extends Scene
 		}
 
 		if (buttons[2].IsPressed())
-			Main.Stop();
+			Main.cny.Stop();
 
 	}
 

@@ -67,7 +67,7 @@ public class GuiClickListener extends NodeComponent
 	
 	private void moveX(float dx)
 	{
-		getParent().GetTransform().SetTranslation(position.x + scale.x / 2 + dx, position.y + scale.y / 2, 0);
+		getParent().SetTranslation(position.x + scale.x / 2 + dx, position.y + scale.y / 2, 0);
 	}
 
 	public boolean IsHover() 

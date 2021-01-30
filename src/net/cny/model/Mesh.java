@@ -12,8 +12,6 @@ import net.cny.util.BufferUtil;
 public class Mesh 
 {
 
-    private static Mesh instance;
-
     private final int vao;
     private final int vbo;
     private final int tbo;
@@ -71,14 +69,4 @@ public class Mesh
         glBindVertexArray(0);
     }
 
-    public static Mesh GetInstance()
-    {
-        if (instance == null)
-        {
-            instance = new Mesh();
-            instance.Create();
-        }
-
-        return instance;
-    }
 }

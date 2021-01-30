@@ -5,30 +5,18 @@ import java.util.HashMap;
 import net.cny.math.Transform;
 import net.cny.model.Mesh;
 import net.cny.pipeline.DefaultShaderProgram;
-import net.cny.renderer.Renderer;
 import net.cny.image.Image;
 import org.joml.Vector2f;
 
-public class Node 
+public class Node extends Transform
 {
 	private final HashMap<String, NodeComponent> components;
-	private final Transform transform;
-	private final Mesh mesh;
+	private final Image image;
 
-	public Node()
+	public Node(Image image)
 	{
-		components = new HashMap<>();
-		transform = new Transform();
-		mesh = Mesh.GetInstance();
-	}
-
-	public void AddRenderer(Image image)
-	{
-		Renderer renderer = new Renderer();
-		renderer.SetImage(image);
-		renderer.SetShaderProgram(new DefaultShaderProgram());
-
-		AddComponent(renderer);
+		this.components = new HashMap<>();
+		this.image = image;
 	}
 
 	public void Update(float delta)
@@ -62,15 +50,12 @@ public class Node
 
 	public void SetTransformation(Vector2f position, Vector2f scale)
 	{
-		GetTransform().SetTranslation(position.x + scale.x / 2, position.y + scale.y / 2, 0);
-		GetTransform().SetScaling(scale.x, scale.y, 0);
+		SetTranslation(position.x + scale.x / 2, position.y + scale.y / 2, 0);
+		SetScaling(scale.x, scale.y, 0);
 	}
 
-	public Transform GetTransform() {
-		return transform;
-	}
-	
-	public Mesh GetMesh() {
-		return mesh;
+	public Image GetImage()
+	{
+		return image;
 	}
 }

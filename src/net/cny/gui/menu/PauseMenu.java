@@ -6,7 +6,7 @@ import net.cny.GameState;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiButton;
 import net.cny.renderer.MasterRenderer;
-import net.cny.scenegraph.Scene;
+import net.cny.scenegraph.Scenegraph;
 import org.joml.Vector2f;
 
 import static net.cny.util.ResourceManager.MainMenu.TITLE;
@@ -18,17 +18,17 @@ import static net.cny.util.ResourceManager.PauseMenu.*;
 
 import static org.lwjgl.opengl.GL11.*;
 
-public class PauseMenu extends Scene
+public class PauseMenu extends Scenegraph
 {
 
 	private GuiButton[] buttons;
 	private Sound backgroundAudio;
-	private final Scene oldScene;
+	private final Scenegraph oldScene;
 
-	public PauseMenu(Scene oldScene)
+	public PauseMenu(Scenegraph oldScene)
 	{
 		this.oldScene = oldScene;
-		GameState.SetState(GameState.State.PAUSE_MENU);
+		GameState.SetState(GameState.PAUSE_MENU);
 	}
 	
 	@Override
@@ -61,7 +61,7 @@ public class PauseMenu extends Scene
 		}
 
 		if (buttons[2].IsPressed())
-			Main.Stop();
+			Main.cny.Stop();
 	}
 	
 	@Override

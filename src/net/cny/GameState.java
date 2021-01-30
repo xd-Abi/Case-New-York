@@ -1,24 +1,23 @@
 package net.cny;
 
-public class GameState
+public enum GameState
 {
 
-	private static State state;
+	MAIN_MENU,
+	SETTINGS_MENU,
+	PAUSE_MENU,
 
-	public static State GetState() {
+	FIRST_SCENE,
+	LEVEL_1;
+
+	private static GameState state;
+
+	public static GameState GetState() {
 		return state;
 	}
 
-	public static void SetState(State state) {
+	public static void SetState(GameState state) {
 		GameState.state = state;
 	}
 
-	public enum State {
-		MAIN_MENU,
-		SETTINGS_MENU,
-		PAUSE_MENU,
-
-		FIRST_SCENE,
-		LEVEL_1,
-	}
 }

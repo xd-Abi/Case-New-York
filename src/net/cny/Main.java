@@ -2,17 +2,44 @@ package net.cny;
 
 import net.cny.audio.SoundManager;
 import net.cny.gui.menu.MainMenu;
+import net.cny.gui.menu.PauseMenu;
 import net.cny.platform.Keyboard;
 import net.cny.platform.Mouse;
 import net.cny.platform.Window;
 import net.cny.renderer.MasterRenderer;
+import net.cny.scenegraph.Scenegraph;
+import org.lwjgl.glfw.GLFW;
 
-public class Main
+public class Main implements Runnable
 {
+    public static final Main cny = new Main();
 
-    private static boolean isRunning;
+    private boolean isRunning;
+    private boolean isPausable;
 
-    private static void Initialize()
+    private Thread thread;
+    private GameState state;
+
+    private Main() { }
+
+    public synchronized void Start()
+    {
+        if (isRunning)
+            return;
+
+        thread = new Thread(this,"Case New York: Client");
+        thread.start();
+    }
+
+    public synchronized void Stop()
+    {
+        if (!isRunning)
+            return;
+
+        isRunning = false;
+    }
+
+    private void Initialize()
     {
         // Creating the Window
 
@@ -28,14 +55,13 @@ public class Main
 
         SoundManager.Initialize();
 
+        MasterRenderer.Initialize();
         MasterRenderer.SetScene(new MainMenu());
     }
 
-    public static void Run()
+    @Override
+    public void run()
     {
-        if (isRunning)
-            return;
-
         isRunning = true;
 
         Initialize();
@@ -98,23 +124,27 @@ public class Main
         CleanUp();
     }
 
-    public static void Stop()
-    {
-        if (!isRunning)
-            return;
-
-        isRunning = false;
-    }
-
-    private static void Update(float delta)
+    private void Update(float delta)
     {
         MasterRenderer.Update(delta);
+
+        UpdateGame(delta);
+
         Keyboard.Update();
         Mouse.Update();
         Window.Update();
     }
 
-    private static void CleanUp()
+    private void UpdateGame(float delta)
+    {
+        if (isPausable && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE))
+        {
+            Scenegraph oldScenegraph = MasterRenderer.GetScene();
+            MasterRenderer.SetScene(new PauseMenu(oldScenegraph));
+        }
+    }
+
+    private void CleanUp()
     {
 
         MasterRenderer.CleanUp();
@@ -125,5 +155,39 @@ public class Main
         Keyboard.Destroy();
         Mouse.Destroy();
         Window.Dispose();
+
+        boolean isThreadJoined = false;
+
+        while (!isThreadJoined)
+        {
+
+           try
+            {
+                thread.join();
+                isThreadJoined = true;
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+
+        }
+        System.out.println("TEST");
+
+    }
+
+    public void setIsPausable(boolean isPausable)
+    {
+        this.isPausable = isPausable;
+    }
+
+    public GameState GetState()
+    {
+        return state;
+    }
+
+    public void SetState(GameState state)
+    {
+        this.state = state;
     }
 }
