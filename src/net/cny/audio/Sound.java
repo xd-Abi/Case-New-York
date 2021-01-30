@@ -1,5 +1,7 @@
 package net.cny.audio;
 
+import net.cny.Main;
+import net.cny.scenegraph.NodeComponent;
 import net.cny.util.SoundUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
@@ -8,23 +10,30 @@ import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-public class Sound
+public class Sound extends NodeComponent
 {
 
-    private final IntBuffer buffer;
-    private final int source;
+    private IntBuffer buffer;
+    private int source;
     private long time;
 
-    public Sound(String soundPath)
+    public Sound(String soundPath, boolean followParent)
     {
+        Initialize(soundPath);
 
+        if (followParent && getParent() != null)
+            SetPosition(getParent().GetTranslation().x, getParent().GetTranslation().y);
+    }
+
+    public void Initialize(String soundPath)
+    {
         buffer = BufferUtils.createIntBuffer(1);
         AL10.alGenBuffers(buffer);
 
         try
         {
             SoundUtils.createBufferData(buffer.get(0), soundPath);
-            time = buffer.get(0);
+            time = (buffer.get(0) + 1) * (long)Main.FRAME_CAP;
         }
         catch (UnsupportedAudioFileException | IOException e)
         {
@@ -41,7 +50,6 @@ public class Sound
         AL10.alSourcef(source, AL10.AL_GAIN, 1f);
         AL10.alSourcei(source, AL10.AL_LOOPING, AL10.AL_FALSE);
 
-        SoundManager.AddSound(this);
     }
 
     public void Play()
@@ -54,7 +62,8 @@ public class Sound
         AL10.alSourceStop(source);
     }
 
-    public void Delete()
+    @Override
+    public void CleanUp()
     {
         Stop();
         AL10.alDeleteBuffers(buffer);
@@ -79,5 +88,11 @@ public class Sound
     public long GetTime()
     {
         return time;
+    }
+
+    @Override
+    public String GetType()
+    {
+        return "sound-component";
     }
 }

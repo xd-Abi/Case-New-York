@@ -4,6 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.ArrayList;
 
+import net.cny.Main;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
@@ -50,8 +51,8 @@ public class Mouse
 			}
 		};
 		
-		glfwSetMouseButtonCallback(Window.GetId(), mouseButtonCallback);
-		glfwSetCursorPosCallback(Window.GetId(), cursorPosCallback);
+		glfwSetMouseButtonCallback(Main.cny.GetWindow(), mouseButtonCallback);
+		glfwSetCursorPosCallback(Main.cny.GetWindow(), cursorPosCallback);
     }
     
     public static void Update()
@@ -91,11 +92,11 @@ public class Mouse
     
     public static float GetOpenGLX()
     {
-    	return (2f* cursorX) / Window.GetWidth() - 1;
+    	return (2f* cursorX) / Main.cny.GetWidth() - 1;
     }
     
     public static float GetOpenGLY()
     {
-    	return -((2f* cursorY) / Window.GetHeight() - 1);
+    	return -((2f* cursorY) / Main.cny.GetHeight() - 1);
     }    
 }

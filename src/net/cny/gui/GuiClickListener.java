@@ -25,10 +25,10 @@ public class GuiClickListener extends NodeComponent
 	{
 		this.position = position;
 		this.scale = scale;
-		clickSound = new Sound(CLICK_SOUND);
+		clickSound = new Sound(CLICK_SOUND, false);
 		clickSound.SetPosition(position.x + scale.x / 2, position.y + scale.y / 2);
 
-		hoverSound = new Sound(CLICK_SOUND);
+		hoverSound = new Sound(CLICK_SOUND, false);
 		hoverSound.SetPosition(position.x + scale.x / 2, position.y + scale.y / 2);
 		hoverSound.SetPitch(4);
 	}
@@ -79,7 +79,14 @@ public class GuiClickListener extends NodeComponent
 	{
 		return isPressed;
 	}
-	
+
+	@Override
+	public void CleanUp() {
+		clickSound.CleanUp();
+		hoverSound.CleanUp();
+		super.CleanUp();
+	}
+
 	@Override
 	public String GetType() {
 		return "gui-click-listener";

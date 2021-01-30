@@ -1,6 +1,7 @@
 package net.cny.level;
 
 import net.cny.GameState;
+import net.cny.Main;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
 import net.cny.scenegraph.Scenegraph;
@@ -15,30 +16,33 @@ public class FirstScene extends Scenegraph
     private GuiBackground trainStationBackground;
     private GuiBackground letterBackground;
     private GuiBackground iconBackground;
+    private int trainStoppingTime;
 
     public FirstScene()
     {
-        GameState.SetState(GameState.FIRST_SCENE);
+        Main.cny.SetState(GameState.FIRST_SCENE);
     }
 
     @Override
     public void Initialize()
     {
         trainStationBackground = new GuiBackground("scene1/background_train_station.png");
+        trainStoppingSound = new Sound("scene1/train_sound.wav", true);
+        trainStoppingSound.Play();
+        trainStationBackground.AddComponent(trainStoppingSound);
+
         AddNode(trainStationBackground);
 
-        trainStoppingSound = new Sound("scene1/train_sound.wav");
-        trainStoppingSound.Play();
-
-        footStepsSound = new Sound("scene1/footsteps.wav");
+        footStepsSound = new Sound("scene1/footsteps.wav", false);
         footStepsSound.SetLoop(true);
         footStepsSound.Play();
 
+        trainStationBackground.AddComponent(footStepsSound);
+
         letterBackground = new GuiBackground("scene1/background_table_letter.png");
 
+        trainStoppingTime = (int) trainStoppingSound.GetTime();
     }
-
-    int trainStoppingTime = 540;
 
     @Override
     public void Update(float delta)
@@ -47,28 +51,21 @@ public class FirstScene extends Scenegraph
 
         if (trainStoppingTime == 0)
         {
-
-
+            trainStationBackground.CleanUp();
             RemoveNode(trainStationBackground);
-            AddNode(letterBackground);
 
-            footStepsSound.Stop();
+           AddNode(letterBackground);
+
+            trainStoppingTime = -2;
         }
 
-        if (trainStoppingTime != 0)
+        if (trainStoppingTime > -1)
             trainStoppingTime--;
 
     }
 
     @Override
-    public void Render() {
-        glDisable(GL_DEPTH_TEST);
-        glEnable(GL_BLEND);
-        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-        super.Render();
-
-        glEnable(GL_DEPTH_TEST);
-        glDisable(GL_BLEND);
+    public void CleanUp() {
+        super.CleanUp();
     }
 }

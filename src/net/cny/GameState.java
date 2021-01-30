@@ -9,15 +9,4 @@ public enum GameState
 
 	FIRST_SCENE,
 	LEVEL_1;
-
-	private static GameState state;
-
-	public static GameState GetState() {
-		return state;
-	}
-
-	public static void SetState(GameState state) {
-		GameState.state = state;
-	}
-
 }

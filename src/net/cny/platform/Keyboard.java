@@ -4,7 +4,7 @@ import static org.lwjgl.glfw.GLFW.*;
 
 import java.util.ArrayList;
 
-import net.cny.platform.Window;
+import net.cny.Main;
 import org.lwjgl.glfw.GLFWKeyCallback;
 
 public class Keyboard 
@@ -37,7 +37,7 @@ public class Keyboard
 			}
 		}; 
 		
-		glfwSetKeyCallback(Window.GetId(), keyCallback);
+		glfwSetKeyCallback(Main.cny.GetWindow(), keyCallback);
 	}
 	
 	public static void Update()
