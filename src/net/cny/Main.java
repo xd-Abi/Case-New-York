@@ -16,6 +16,8 @@ import net.cny.util.ImageLoader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
+import org.lwjgl.glfw.GLFWVidMode;
+import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.openal.*;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL13;
@@ -24,7 +26,7 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 
-public class Main implements Runnable
+public class Main extends GLFWWindowSizeCallback implements Runnable
 {
 
     public static final double FRAME_CAP = 60;
@@ -33,11 +35,14 @@ public class Main implements Runnable
     public static final Main cny = new Main();
 
     private boolean isRunning;
-    private boolean isPausable;
+    private boolean canPause;
 
     private long window;
     private int width;
     private int height;
+    private int maxScreenWidth;
+    private int maxScreenHeight;
+    private boolean isFullscreen;
 
     private float delta;
 
@@ -91,12 +96,11 @@ public class Main implements Runnable
 
         // Maximize the width and height to match the max screen size
 
-       /* GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         assert vidMode != null;
-        width = vidMode.width();
-        height = vidMode.height();
-        */
-        //TODO: Temporary
+        maxScreenWidth = vidMode.width();
+        maxScreenHeight = vidMode.height();
+
         width = 1280;
         height = 720;
 
@@ -107,6 +111,7 @@ public class Main implements Runnable
             throw new IllegalStateException("Error: Failed to create the GLFW window");
         }
 
+        glfwSetWindowPos(window, (maxScreenWidth - width) / 2, (maxScreenHeight - height) / 2);
 
         // Setting up the Window Icon
 
@@ -119,8 +124,21 @@ public class Main implements Runnable
 
         glfwSetWindowIcon(window, images);
 
+        // Setting up Size callback
+
+        glfwSetWindowSizeCallback(window, this);
+
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
+    }
+
+    // WindowSize callback
+
+    @Override
+    public void invoke(long window, int width, int height)
+    {
+        if (this.width != width || this.height != height)
+            Resize(width, height);
     }
 
     private void InitializeOpenAL()
@@ -204,7 +222,7 @@ public class Main implements Runnable
 
         InitializeRendering();
 
-        isPausable = true;
+        canPause = true;
 
 
         // Show Window
@@ -292,8 +310,7 @@ public class Main implements Runnable
         glfwPollEvents();
     }
 
-    private void UpdateGame()
-    {
+    private void UpdateGame() {
         if (scenegraph != null)
             scenegraph.Update(delta);
 
@@ -301,20 +318,52 @@ public class Main implements Runnable
 
             // Disable PauseMenu
 
-            case MAIN_MENU, SETTINGS_MENU, FIRST_SCENE -> isPausable = false;
+            case MAIN_MENU, SETTINGS_MENU, FIRST_SCENE -> canPause = false;
 
             // Enable PauseMenu on levels
-            case LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4 -> isPausable = true;
+            case LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4 -> canPause = true;
         }
 
-        if (isPausable && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE) && state != GameState.PAUSE_MENU)
-        {
+        if (canPause && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE) && state != GameState.PAUSE_MENU) {
             assert scenegraph != null;
             scenegraph.OnPause();
 
             Scenegraph oldScene = scenegraph;
             SetScenegraph(new PauseMenu(oldScene), true);
         }
+
+        // Setting Window to fullscreen if F11 is pressed
+
+        if (Keyboard.IsKeyPushed(GLFW_KEY_F11))
+        {
+            ToggleFullscreen();
+        }
+
+        System.out.println(width + " " + height);
+    }
+
+    private void ToggleFullscreen()
+    {
+       if (!isFullscreen)
+       {
+           glfwSetWindowSizeCallback(window, null);
+           glfwSetWindowSize(window, maxScreenWidth, maxScreenHeight);
+           ChangeViewPort(maxScreenWidth, maxScreenHeight);
+           glfwSetWindowMonitor(window, glfwGetPrimaryMonitor(), 0,0, maxScreenWidth, maxScreenHeight, 60);
+
+           isFullscreen = true;
+       }
+       else
+       {
+           glfwSetWindowSizeCallback(window, this);
+           glfwSetWindowSize(window, width, height);
+           ChangeViewPort(width, height);
+
+           glfwSetWindowMonitor(window, 0, (maxScreenWidth - width) / 2, (maxScreenHeight - height) / 2, width, height, 60);
+
+
+           isFullscreen = false;
+       }
     }
 
     private void Render()
@@ -391,12 +440,31 @@ public class Main implements Runnable
 
     public int GetWidth()
     {
+        if (isFullscreen)
+            return maxScreenWidth;
+
         return width;
     }
 
     public int GetHeight()
     {
+        if (isFullscreen)
+            return maxScreenHeight;
+
         return height;
+    }
+
+    public void Resize(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+
+        ChangeViewPort(width, height);
+    }
+
+    private void ChangeViewPort(int width, int height)
+    {
+        glViewport(0,0, width, height);
     }
 
     public void SetDelta(float delta)
