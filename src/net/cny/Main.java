@@ -100,7 +100,7 @@ public class Main implements Runnable
         width = 1280;
         height = 720;
 
-        window = glfwCreateWindow(width, height, "Fall New York", 0, 0);
+        window = glfwCreateWindow(width, height, "Case New York | 1.0", 0, 0);
 
         if (window == 0)
         {
@@ -112,7 +112,7 @@ public class Main implements Runnable
 
         ByteBuffer bufferedImage = ImageLoader.LoadImageToByteBuffer("icon.png");
         GLFWImage image = GLFWImage.malloc();
-        image.set(235, 300, bufferedImage);
+        image.set(250, 250, bufferedImage);
 
         GLFWImage.Buffer images = GLFWImage.malloc(1);
         images.put(0, image);
@@ -166,6 +166,9 @@ public class Main implements Runnable
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+        System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
+        System.out.println("OpenAL Version: " + AL10.alGetString(AL10.AL_VERSION));
     }
 
     private void Initialize()
@@ -419,6 +422,6 @@ public class Main implements Runnable
         LEVEL_1,
         LEVEL_2,
         LEVEL_3,
-        LEVEL_4;
+        LEVEL_4
     }
 }
