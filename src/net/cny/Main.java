@@ -154,8 +154,26 @@ public class Main implements Runnable
 
     private void InitializeRendering()
     {
+        float[] vertices = new float[]
+        {
+            -0.5f,  0.5f,      // Top Left
+            -0.5f, -0.5f,      // Bottom Left
+             0.5f, -0.5f,      // Bottom Right
+             0.5f,  0.5f       // Top Right
+         };
+
+        float[] textureCoordinates = new float[]
+        {
+             0, 0,
+             0, 1,
+             1, 1,
+             1, 0
+        };
+
+        int[] indices = new int[] {3, 2, 1, 1, 0, 3};
+
         mesh = new Mesh();
-        mesh.Create();
+        mesh.Create(vertices, textureCoordinates, indices);
 
         shaderProgram = new DefaultShaderProgram();
 
