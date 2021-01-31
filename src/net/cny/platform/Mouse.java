@@ -8,40 +8,20 @@ import net.cny.Main;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
-public class Mouse 
+public class Mouse extends GLFWMouseButtonCallback
 {
 
     private static final ArrayList<Integer> pushedButtons = new ArrayList<Integer>();
     private static final ArrayList<Integer> buttonsHolding = new ArrayList<Integer>();
     private static final ArrayList<Integer> releasedButtons = new ArrayList<Integer>();
 
-    private static GLFWMouseButtonCallback mouseButtonCallback;
     private static GLFWCursorPosCallback cursorPosCallback;
     
     private static float cursorX;
     private static float cursorY;
     
-    public static void Create()
+    public Mouse()
     {
-    	mouseButtonCallback = new GLFWMouseButtonCallback() {
-			
-            @SuppressWarnings("deprecation")
-			@Override
-            public void invoke(long window, int button, int action, int mods) {
-                if (action == GLFW_PRESS){
-                    if (!pushedButtons.contains(button)){
-                        pushedButtons.add(button);
-                        buttonsHolding.add(button);
-                    }
-                }
-
-                if (action == GLFW_RELEASE){
-                    releasedButtons.add(button);
-                    buttonsHolding.remove(new Integer(button));
-                }
-            }
-    	};
-    	
     	cursorPosCallback = new GLFWCursorPosCallback() {
 			
 			@Override
@@ -51,19 +31,34 @@ public class Mouse
 			}
 		};
 		
-		glfwSetMouseButtonCallback(Main.cny.GetWindow(), mouseButtonCallback);
+		glfwSetMouseButtonCallback(Main.cny.GetWindow(), this);
 		glfwSetCursorPosCallback(Main.cny.GetWindow(), cursorPosCallback);
     }
-    
-    public static void Update()
+
+    @Override
+    public void invoke(long window, int button, int action, int mods) {
+        if (action == GLFW_PRESS){
+            if (!pushedButtons.contains(button)){
+                pushedButtons.add(button);
+                buttonsHolding.add(button);
+            }
+        }
+
+        if (action == GLFW_RELEASE){
+            releasedButtons.add(button);
+            buttonsHolding.remove(new Integer(button));
+        }
+    }
+
+    public void Update()
     {
         pushedButtons.clear();
         releasedButtons.clear();
     }
     
-    public static void Destroy()
+    public void Destroy()
     {
-    	mouseButtonCallback.free();
+        this.free();
     	cursorPosCallback.free();
     }
     

@@ -22,12 +22,13 @@ import org.lwjgl.opengl.GL13;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.security.Key;
 
 
-public class Main
+public class Main implements Runnable
 {
 
-    public static final double FRAME_CAP = 240;
+    public static final double FRAME_CAP = 60;
     private static final double FRAME_TIME = 1.0 / FRAME_CAP;
 
     public static final Main cny = new Main();
@@ -39,7 +40,15 @@ public class Main
     private int width;
     private int height;
 
+    private float delta;
+
+    private Thread thread;
     private GameState state;
+
+    // Input
+
+    private Keyboard keyboard;
+    private Mouse mouse;
 
     // Rendering Objects
 
@@ -54,7 +63,8 @@ public class Main
         if (isRunning)
             return;
 
-        Run();
+        thread = new Thread(this, "CNY: Client");
+        thread.start();
     }
 
     public void Stop()
@@ -80,12 +90,13 @@ public class Main
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
 
+        // Maximize the width and height to match the max screen size
+
        /* GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
         assert vidMode != null;
         width = vidMode.width();
         height = vidMode.height();
         */
-
         //TODO: Temporary
         width = 1280;
         height = 720;
@@ -165,8 +176,8 @@ public class Main
 
         // Creating input
 
-        Keyboard.Create();
-        Mouse.Create();
+        keyboard = new Keyboard(window);
+        mouse = new Mouse();
 
         // Initializing the SoundManager / OpenAL
 
@@ -178,7 +189,8 @@ public class Main
 
     }
 
-    public void Run()
+    @Override
+    public void run()
     {
         isRunning = true;
 
@@ -211,7 +223,9 @@ public class Main
                 if (glfwWindowShouldClose(window))
                     Stop();
 
-                Update((float)FRAME_TIME);
+
+                SetDelta((float) FRAME_TIME);
+                Update();
 
                 if (frameCounter >= 1.0)
                 {
@@ -228,38 +242,48 @@ public class Main
             }
             else
             {
-                try
-                {
-                    Thread.sleep(1);
-                }
-                catch (InterruptedException e)
-                {
-                    e.printStackTrace();
-                }
+                SleepThread();
             }
         }
 
         CleanUp();
     }
 
-    private void Update(float delta)
+    private void SleepThread()
     {
-        UpdateGame(delta);
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
 
-        Keyboard.Update();
-        Mouse.Update();
+    private void Update()
+    {
+        UpdateGame();
+
+        keyboard.Update();
+        mouse.Update();
 
         glfwPollEvents();
     }
 
-    private void UpdateGame(float delta)
+    private void UpdateGame()
     {
         if (scenegraph != null)
             scenegraph.Update(delta);
 
         switch (state) {
-            case MAIN_MENU -> isPausable = false;
-            case FIRST_SCENE -> isPausable = true;
+
+            // Disable PauseMenu
+
+            case MAIN_MENU, FIRST_SCENE -> isPausable = false;
+
+            // Enable PauseMenu on levels
+            case LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4 -> isPausable = true;
         }
 
         if (isPausable && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE) && state != GameState.PAUSE_MENU)
@@ -313,16 +337,30 @@ public class Main
 
         // Destroy Input and Window
 
-        Keyboard.Destroy();
-        Mouse.Destroy();
+        keyboard.Destroy();
+        mouse.Destroy();
 
         glfwDestroyWindow(window);
         glfwTerminate();
+
+        while (thread.isAlive())
+        {
+            try
+            {
+                thread.join(100);
+                break;
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+
     }
 
-    public void setPausable(boolean isPausable)
+    public void ForceWindowToClose()
     {
-        this.isPausable = isPausable;
+        glfwSetWindowShouldClose(window, true);
     }
 
     public long GetWindow()
@@ -340,6 +378,11 @@ public class Main
         return height;
     }
 
+    public void SetDelta(float delta)
+    {
+        this.delta = delta;
+    }
+
     public void SetScenegraph(Scenegraph newScene, boolean shouldInit)
     {
         if (scenegraph != null)
@@ -353,19 +396,29 @@ public class Main
         scenegraph = newScene;
     }
 
-    public Scenegraph GetScenegraph()
-    {
-        return scenegraph;
-    }
-
-    public GameState GetState()
-    {
-        return state;
-    }
-
     public void SetState(GameState state)
     {
+
         this.state = state;
     }
 
+    public enum GameState
+    {
+        // Menus
+
+        MAIN_MENU,
+        SETTINGS_MENU,
+        PAUSE_MENU,
+
+        // Scenes
+
+        FIRST_SCENE,
+
+        // Levels
+
+        LEVEL_1,
+        LEVEL_2,
+        LEVEL_3,
+        LEVEL_4;
+    }
 }

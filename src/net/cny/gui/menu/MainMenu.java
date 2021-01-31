@@ -4,7 +4,6 @@ import static net.cny.util.ResourceManager.MainMenu.*;
 
 import net.cny.Main;
 import net.cny.scenegraph.Scenegraph;
-import net.cny.GameState;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
 import net.cny.level.FirstScene;
@@ -19,7 +18,7 @@ public class MainMenu extends Scenegraph
 
 	public MainMenu() 
 	{
-		super(GameState.MAIN_MENU);
+		super(Main.GameState.MAIN_MENU);
 	}
 	
 	@Override
@@ -31,7 +30,7 @@ public class MainMenu extends Scenegraph
 		background.AddComponent(backgroundAudio = new Sound(BACKGROUND_AUDIO, true));
 
 		AddNode(background);
-		AddNode(new GuiBackground(TITLE, new Vector2f(-0.97f, 0.1f), new Vector2f(0.7f, 0.7f)));
+		AddNode(new GuiBackground(TITLE,  new Vector2f(-0.95f, 0.1f), new Vector2f(0.7f, 0.7f)));
 
 		buttons = new GuiButton[3];
 		buttons[0] = new GuiButton(PLAY_BUTTON, new Vector2f(-0.9f, -0.3f),  new Vector2f(0.4f, 0.17f));
@@ -55,7 +54,7 @@ public class MainMenu extends Scenegraph
 		}
 
 		if (buttons[2].IsPressed())
-			Main.cny.Stop();
+			Main.cny.ForceWindowToClose();
 
 	}
 

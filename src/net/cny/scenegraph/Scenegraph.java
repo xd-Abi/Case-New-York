@@ -1,6 +1,5 @@
 package net.cny.scenegraph;
 
-import net.cny.GameState;
 import net.cny.Main;
 
 import java.util.ArrayList;
@@ -9,9 +8,9 @@ public class Scenegraph
 {
 
 	private final ArrayList<Node> objects;
-	private final GameState state;
+	private final Main.GameState state;
 
-	public Scenegraph(GameState state)
+	public Scenegraph(Main.GameState state)
 	{
 		this.objects = new ArrayList<>();
 		this.state = state;
@@ -63,7 +62,7 @@ public class Scenegraph
 		return objects;
 	}
 
-	public GameState GetState()
+	public Main.GameState GetState()
 	{
 		return state;
 	}

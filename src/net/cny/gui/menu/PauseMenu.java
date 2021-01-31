@@ -2,7 +2,6 @@ package net.cny.gui.menu;
 
 import net.cny.Main;
 import net.cny.gui.GuiBackground;
-import net.cny.GameState;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiButton;
 import net.cny.scenegraph.Scenegraph;
@@ -24,7 +23,7 @@ public class PauseMenu extends Scenegraph
 
 	public PauseMenu(Scenegraph oldScene)
 	{
-		super(GameState.PAUSE_MENU);
+		super(Main.GameState.PAUSE_MENU);
 		this.oldScene = oldScene;
 	}
 	
@@ -63,7 +62,7 @@ public class PauseMenu extends Scenegraph
 		}
 
 		if (buttons[2].IsPressed())
-			Main.cny.Stop();
+			Main.cny.ForceWindowToClose();
 	}
 
 	@Override
