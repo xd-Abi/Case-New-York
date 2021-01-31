@@ -24,8 +24,8 @@ public class PauseMenu extends Scenegraph
 
 	public PauseMenu(Scenegraph oldScene)
 	{
+		super(GameState.PAUSE_MENU);
 		this.oldScene = oldScene;
-		Main.cny.SetState(GameState.PAUSE_MENU);
 	}
 	
 	@Override
@@ -57,7 +57,9 @@ public class PauseMenu extends Scenegraph
 
 		if (buttons[0].IsPressed())
 		{
-			Main.cny.SetScenegraph(oldScene);
+			Main.cny.SetScenegraph(oldScene, false);
+			oldScene.OnResume();
+			Main.cny.SetState(oldScene.GetState());
 		}
 
 		if (buttons[2].IsPressed())

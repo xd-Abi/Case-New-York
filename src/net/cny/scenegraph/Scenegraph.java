@@ -1,19 +1,30 @@
 package net.cny.scenegraph;
 
+import net.cny.GameState;
+import net.cny.Main;
+
 import java.util.ArrayList;
 
 public class Scenegraph
 {
-	
+
 	private final ArrayList<Node> objects;
-	
-	public Scenegraph()
+	private final GameState state;
+
+	public Scenegraph(GameState state)
 	{
-		objects = new ArrayList<>();
+		this.objects = new ArrayList<>();
+		this.state = state;
+
+		Main.cny.SetState(state);
 	}
 	
 	public void Initialize() {}
-	
+
+	public void OnPause() {}
+
+	public void OnResume() {}
+
 	public void Update(float delta)
 	{
 		for (Node object : objects)
@@ -50,5 +61,10 @@ public class Scenegraph
 
 	public ArrayList<Node> GetNodeObjects() {
 		return objects;
+	}
+
+	public GameState GetState()
+	{
+		return state;
 	}
 }

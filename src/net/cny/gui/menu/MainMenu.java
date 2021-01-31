@@ -10,7 +10,6 @@ import net.cny.gui.GuiBackground;
 import net.cny.level.FirstScene;
 import net.cny.gui.GuiButton;
 import org.joml.Vector2f;
-import org.lwjgl.system.CallbackI;
 
 public class MainMenu extends Scenegraph
 {
@@ -20,7 +19,7 @@ public class MainMenu extends Scenegraph
 
 	public MainMenu() 
 	{
-		Main.cny.SetState(GameState.MAIN_MENU);
+		super(GameState.MAIN_MENU);
 	}
 	
 	@Override
@@ -52,7 +51,7 @@ public class MainMenu extends Scenegraph
 
 		if (buttons[0].IsPressed())
 		{
-			Main.cny.SetScenegraph(new FirstScene());
+			Main.cny.SetScenegraph(new FirstScene(), true);
 		}
 
 		if (buttons[2].IsPressed())

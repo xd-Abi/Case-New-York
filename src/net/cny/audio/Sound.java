@@ -57,6 +57,11 @@ public class Sound extends NodeComponent
         AL10.alSourcePlay(source);
     }
 
+    public void Pause()
+    {
+        AL10.alSourcePause(source);
+    }
+
     public void Stop()
     {
         AL10.alSourceStop(source);

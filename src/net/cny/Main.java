@@ -120,17 +120,21 @@ public class Main
 
         ALCCapabilities deviceCapabilities = ALC.createCapabilities(device);
 
-        IntBuffer contextAttribList = BufferUtils.createIntBuffer(16);
-        contextAttribList.put(ALC10.ALC_REFRESH);
-        contextAttribList.put(60);
-        contextAttribList.put(ALC10.ALC_SYNC);
-        contextAttribList.put(ALC10.ALC_FALSE);
-        contextAttribList.put(EXTEfx.ALC_MAX_AUXILIARY_SENDS);
-        contextAttribList.put(2);
-        contextAttribList.put(0);
-        contextAttribList.flip();
+        IntBuffer openALContext = BufferUtils.createIntBuffer(16);
 
-        long newContext = ALC10.alcCreateContext(device, contextAttribList);
+        openALContext.put(ALC10.ALC_REFRESH);
+        openALContext.put(60);
+
+        openALContext.put(ALC10.ALC_SYNC);
+        openALContext.put(ALC10.ALC_TRUE);
+
+        openALContext.put(EXTEfx.ALC_MAX_AUXILIARY_SENDS);
+        openALContext.put(2);
+
+        openALContext.put(0);
+        openALContext.flip();
+
+        long newContext = ALC10.alcCreateContext(device, openALContext);
 
         if (!ALC10.alcMakeContextCurrent(newContext)) {
             throw new IllegalStateException("Error: Failed to make context current");
@@ -146,7 +150,7 @@ public class Main
 
         shaderProgram = new DefaultShaderProgram();
 
-        SetScenegraph(new MainMenu());
+        SetScenegraph(new MainMenu(), true);
 
         // Disabling for transparent textures
 
@@ -260,7 +264,11 @@ public class Main
 
         if (isPausable && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE) && state != GameState.PAUSE_MENU)
         {
-            SetScenegraph(new PauseMenu(scenegraph));
+            assert scenegraph != null;
+            scenegraph.OnPause();
+
+            Scenegraph oldScene = scenegraph;
+            SetScenegraph(new PauseMenu(oldScene), true);
         }
     }
 
@@ -288,11 +296,20 @@ public class Main
     private void CleanUp()
     {
 
+        // Delete the game objects
+
         if (scenegraph != null)
             scenegraph.CleanUp();
 
         mesh.Delete();
         shaderProgram.Delete();
+
+        // Destroy OpenAL
+
+        long openALContext = ALC10.alcGetCurrentContext();
+
+        ALC10.alcDestroyContext(openALContext);
+        ALC10.alcCloseDevice(openALContext);
 
         // Destroy Input and Window
 
@@ -323,14 +340,16 @@ public class Main
         return height;
     }
 
-    public void SetScenegraph(Scenegraph newScene)
+    public void SetScenegraph(Scenegraph newScene, boolean shouldInit)
     {
         if (scenegraph != null)
         {
             scenegraph.CleanUp();
         }
 
-        newScene.Initialize();
+        if (shouldInit)
+            newScene.Initialize();
+
         scenegraph = newScene;
     }
 

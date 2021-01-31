@@ -1,12 +1,9 @@
 package net.cny.level;
 
 import net.cny.GameState;
-import net.cny.Main;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
 import net.cny.scenegraph.Scenegraph;
-
-import static org.lwjgl.opengl.GL11.*;
 
 public class FirstScene extends Scenegraph
 {
@@ -15,12 +12,11 @@ public class FirstScene extends Scenegraph
     private Sound footStepsSound;
     private GuiBackground trainStationBackground;
     private GuiBackground letterBackground;
-    private GuiBackground iconBackground;
     private int trainStoppingTime;
 
     public FirstScene()
     {
-        Main.cny.SetState(GameState.FIRST_SCENE);
+        super(GameState.FIRST_SCENE);
     }
 
     @Override
@@ -45,6 +41,26 @@ public class FirstScene extends Scenegraph
     }
 
     @Override
+    public void OnPause()
+    {
+        if (trainStoppingTime != -2)
+        {
+            trainStoppingSound.Pause();
+            footStepsSound.Pause();
+        }
+    }
+
+    @Override
+    public void OnResume()
+    {
+        if (trainStoppingTime != -2)
+        {
+            trainStoppingSound.Play();
+            footStepsSound.Play();
+        }
+    }
+
+    @Override
     public void Update(float delta)
     {
         super.Update(delta);
@@ -62,6 +78,8 @@ public class FirstScene extends Scenegraph
         if (trainStoppingTime > -1)
             trainStoppingTime--;
 
+
+        System.out.println(trainStoppingTime);
     }
 
     @Override
