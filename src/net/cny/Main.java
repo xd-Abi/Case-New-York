@@ -22,7 +22,6 @@ import org.lwjgl.opengl.GL13;
 
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
-import java.security.Key;
 
 
 public class Main implements Runnable
@@ -122,7 +121,6 @@ public class Main implements Runnable
 
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
-        glfwShowWindow(window);
     }
 
     private void InitializeOpenAL()
@@ -187,6 +185,10 @@ public class Main implements Runnable
 
         isPausable = true;
 
+
+        // Show Window
+
+        glfwShowWindow(window);
     }
 
     @Override
@@ -235,12 +237,10 @@ public class Main implements Runnable
                 }
             }
 
-            if (render)
-            {
-                Render();
-                frames++;
-            }
-            else
+            Render();
+            frames++;
+
+            if (!render)
             {
                 SleepThread();
             }
@@ -280,7 +280,7 @@ public class Main implements Runnable
 
             // Disable PauseMenu
 
-            case MAIN_MENU, FIRST_SCENE -> isPausable = false;
+            case MAIN_MENU, SETTINGS_MENU, FIRST_SCENE -> isPausable = false;
 
             // Enable PauseMenu on levels
             case LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4 -> isPausable = true;

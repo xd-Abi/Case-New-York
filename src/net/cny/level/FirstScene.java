@@ -72,7 +72,6 @@ public class FirstScene extends Scenegraph
         if (trainStoppingTime <= 8 * Main.FRAME_CAP && !GetNodeObjects().contains(london_1997))
         {
             AddNode(london_1997);
-            System.out.println("ADDED");
         }
 
         if (trainStoppingTime <= 7.9999f * Main.FRAME_CAP && trainStoppingTime != 6 * Main.FRAME_CAP)
@@ -102,8 +101,6 @@ public class FirstScene extends Scenegraph
         {
             trainStoppingTime--;
         }
-
-        System.out.println(trainStoppingTime);
     }
 
     @Override
