@@ -338,8 +338,6 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
         {
             ToggleFullscreen();
         }
-
-        System.out.println(width + " " + height);
     }
 
     private void ToggleFullscreen()
