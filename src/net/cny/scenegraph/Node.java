@@ -2,6 +2,7 @@ package net.cny.scenegraph;
 
 import java.util.HashMap;
 
+import net.cny.Main;
 import net.cny.math.Transform;
 import net.cny.model.Mesh;
 import net.cny.pipeline.DefaultShaderProgram;
