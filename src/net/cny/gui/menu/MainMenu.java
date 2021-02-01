@@ -3,10 +3,10 @@ package net.cny.gui.menu;
 import static net.cny.util.ResourceManager.MainMenu.*;
 
 import net.cny.Main;
+import net.cny.level.FirstScene;
 import net.cny.scenegraph.Scenegraph;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
-import net.cny.level.FirstScene;
 import net.cny.gui.GuiButton;
 import org.joml.Vector2f;
 
