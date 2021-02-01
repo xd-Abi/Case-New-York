@@ -27,34 +27,22 @@ import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
 
 
-public class Main extends GLFWWindowSizeCallback implements Runnable
+public class Main implements Game
 {
 
     public static final double FRAME_CAP = 60;
-    private static final double FRAME_TIME = 1.0 / FRAME_CAP;
-
-    // Window AspectRatio
-
-    private static final int ASPECT_RATIO_WIDTH = 16;
-    private static final int ASPECT_RATIO_HEIGHT = 9;
+    public static final double FRAME_TIME = 1.0 / FRAME_CAP;
 
     public static final Main cny = new Main();
 
-    private boolean isRunning;
     private boolean canPause;
 
-    private long window;
-    private long cursor;
-    private int width;
-    private int height;
-    private int maxScreenWidth;
-    private int maxScreenHeight;
-    private boolean isFullscreen;
-
-    private float delta;
-
-    private Thread thread;
+    private GameThread thread;
     private GameState state;
+
+    private Window window;
+    private WindowCursor windowCursor;
+    private FullscreenManager fullscreenManager;
 
     // Input
 
@@ -71,104 +59,22 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
 
     public void Start()
     {
-        if (this.isRunning)
-            return;
-
-        this.thread = new Thread(this, "CNY: Client");
-        this.thread.start();
+        thread = new GameThread(this, "CNY: Client");
+        thread.Start();
     }
 
     public void Stop()
     {
-        if (!this.isRunning)
-            return;
-
-        this.isRunning = false;
+        thread.Stop();
     }
 
     private void CreateWindow()
     {
-        if (!glfwInit())
-        {
-            throw new IllegalStateException("Error: GLFW couldn't initialize");
-        }
+        window = new Window(1280, 720);
+        window.Initialize();
+        window.Create();
 
-        // Setting up window hints
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-
-        // Maximize the width and height to match the max screen size
-
-        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        assert vidMode != null;
-        this.maxScreenWidth = vidMode.width();
-        this.maxScreenHeight = vidMode.height();
-
-        this.width = 1280;
-        this.height = 720;
-
-        this.window = glfwCreateWindow(this.width, this.height, "Case New York | 1.0", 0, 0);
-
-        if (this.window == 0)
-        {
-            throw new IllegalStateException("Error: Failed to create the GLFW window");
-        }
-
-        glfwSetWindowPos(this.window, (this.maxScreenWidth - this.width) / 2, (this.maxScreenHeight - this.height) / 2);
-
-        glfwMakeContextCurrent(this.window);
-        GL.createCapabilities();
-
-        // Setting up the Window Icon and Setting up a custom Cursor
-
-        CreateWindowIcon();
-        CreateCustomWindowCursor();
-
-        // Setting up Size callback
-
-        glfwSetWindowSizeCallback(this.window, this);
-
-        // This function will resize the window if the aspect ratio changes.
-        // The current AspectRatio is 16:9 and the highest
-
-        glfwSetWindowAspectRatio(this.window, ASPECT_RATIO_WIDTH, ASPECT_RATIO_HEIGHT);
-    }
-
-    private void CreateWindowIcon()
-    {
-        GLFWImage.Buffer images = GLFWImage.malloc(1);
-        images.put(0, CreateGLFWImage("icon.png"));
-
-        glfwSetWindowIcon(window, images);
-    }
-
-    private void CreateCustomWindowCursor()
-    {
-        cursor = glfwCreateCursor(CreateGLFWImage("cursor.png"), 0, 0);
-        glfwSetCursor(this.window, this.cursor);
-    }
-
-    private GLFWImage CreateGLFWImage(String imagePath)
-    {
-        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer(imagePath);
-        GLFWImage image = GLFWImage.malloc();
-        Image imageSize = new Image(imagePath);
-        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
-
-        return image;
-    }
-
-    // WindowSize callback
-
-    @Override
-    public void invoke(long window, int width, int height)
-    {
-        if (this.width != width || this.height != height)
-            Resize(width, height);
+        windowCursor = new WindowCursor(window.GetId());
     }
 
     private void InitializeOpenAL()
@@ -237,14 +143,17 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
         System.out.println("OpenAL Version: " + AL10.alGetString(AL10.AL_VERSION));
     }
 
-    private void Initialize()
+    @Override
+    public void Initialize()
     {
         this.CreateWindow();
 
         // Creating input
 
-        this.keyboard = new Keyboard(this.window);
+        this.keyboard = new Keyboard(this.window.GetId());
         this.mouse = new Mouse();
+
+        fullscreenManager = new FullscreenManager(window);
 
         // Initializing the SoundManager / OpenAL
 
@@ -257,94 +166,32 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
 
         // Show Window
 
-        glfwShowWindow(this.window);
+        window.Show();
     }
 
     @Override
-    public void run()
+    public void Update(float delta)
     {
-        this.isRunning = true;
+        this.UpdateGame(delta);
 
-        this.Initialize();
-
-        int frames = 0;
-        double frameCounter = 0;
-        double lastTime = (double)System.nanoTime()/(double)1000000000L;
-        double unprocessedTime = 0;
-
-        while (this.isRunning)
-        {
-            boolean render = false;
-
-            double startTime = (double)System.nanoTime()/(double)1000000000L;
-            double passedTime = startTime - lastTime;
-            lastTime = startTime;
-
-            unprocessedTime += passedTime;
-            frameCounter += passedTime;
-
-
-
-            while (unprocessedTime > FRAME_TIME)
-            {
-                render = true;
-
-                unprocessedTime -= FRAME_TIME;
-
-                if (glfwWindowShouldClose(this.window))
-                    Stop();
-
-
-                this.SetDelta((float) FRAME_TIME);
-                this.Update();
-
-                if (frameCounter >= 1.0)
-                {
-                    System.out.println(frames);
-                    frames = 0;
-                    frameCounter = 0;
-                }
-            }
-
-            this.Render();
-            frames++;
-
-            if (!render)
-            {
-                this.SleepThread();
-            }
-        }
-
-        this.CleanUp();
-    }
-
-    private void SleepThread()
-    {
-        try
-        {
-            Thread.sleep(1);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private void Update()
-    {
-        this.UpdateGame();
+        fullscreenManager.Update();
 
         this.keyboard.Update();
         this.mouse.Update();
 
-        glfwPollEvents();
+        if (window.IsCloseRequested())
+            Stop();
+
+        window.Update();
     }
 
-    private void UpdateGame() {
+    private void UpdateGame(float delta)
+    {
         if (this.scenegraph != null)
-            this.scenegraph.Update(this.delta);
+            this.scenegraph.Update(delta);
 
-        switch (this.state) {
+        switch (this.state)
+        {
 
             // Disable PauseMenu
 
@@ -361,40 +208,10 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
             Scenegraph oldScene = this.scenegraph;
             SetScenegraph(new PauseMenu(oldScene), true);
         }
-
-        // Setting Window to fullscreen if F11 is pressed
-
-        if (Keyboard.IsKeyPushed(GLFW_KEY_F11))
-        {
-            ToggleFullscreen();
-        }
     }
 
-    private void ToggleFullscreen()
-    {
-       if (!this.isFullscreen)
-       {
-           glfwSetWindowSizeCallback(this.window, null);
-           glfwSetWindowSize(this.window, this.maxScreenWidth, this.maxScreenHeight);
-           ChangeViewPort(this.maxScreenWidth, this.maxScreenHeight);
-           glfwSetWindowMonitor(this.window, glfwGetPrimaryMonitor(), 0,0, this.maxScreenWidth, this.maxScreenHeight, 60);
-
-           this.isFullscreen = true;
-       }
-       else
-       {
-           glfwSetWindowSizeCallback(this.window, this);
-           glfwSetWindowSize(this.window, this.width, this.height);
-           ChangeViewPort(this.width, this.height);
-
-           glfwSetWindowMonitor(this.window, 0, (this.maxScreenWidth - this.width) / 2, (this.maxScreenHeight - this.height) / 2, this.width, this.height, 60);
-
-
-           this.isFullscreen = false;
-       }
-    }
-
-    private void Render()
+    @Override
+    public void Render()
     {
         // Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT);
@@ -411,11 +228,12 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
         }
 
         // Rendering the GLFW window
-        glfwSwapBuffers(window);
+        window.Render();
     }
 
 
-    private void CleanUp()
+    @Override
+    public void CleanUp()
     {
 
         // Delete the game objects
@@ -438,67 +256,35 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
         this.keyboard.Destroy();
         this.mouse.Destroy();
 
-        glfwDestroyCursor(this.cursor);
-        glfwDestroyWindow(this.window);
-        glfwTerminate();
 
-        while (this.thread.isAlive())
-        {
-            try
-            {
-                this.thread.join(100);
-                break;
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
-
+        windowCursor.Destroy();
+        window.Dispose();
     }
 
     public void ForceWindowToClose()
     {
-        glfwSetWindowShouldClose(this.window, true);
+        glfwSetWindowShouldClose(window.GetId(), true);
     }
 
     public long GetWindow()
     {
-        return this.window;
+        return window.GetId();
     }
 
     public int GetWidth()
     {
-        if (this.isFullscreen)
-            return this.maxScreenWidth;
+        if (fullscreenManager.IsFullscreen())
+            return fullscreenManager.GetMaxScreenWidth();
 
-        return this.width;
+        return window.GetWidth();
     }
 
     public int GetHeight()
     {
-        if (this.isFullscreen)
-            return this.maxScreenHeight;
+        if (fullscreenManager.IsFullscreen())
+            return fullscreenManager.GetMaxScreenHeight();
 
-        return this.height;
-    }
-
-    public void Resize(int width, int height)
-    {
-        this.width = width;
-        this.height = height;
-
-        ChangeViewPort(width, height);
-    }
-
-    private void ChangeViewPort(int width, int height)
-    {
-        glViewport(0,0, width, height);
-    }
-
-    public void SetDelta(float delta)
-    {
-        this.delta = delta;
+        return window.GetHeight();
     }
 
     public void SetScenegraph(Scenegraph newScene, boolean shouldInit)
@@ -538,5 +324,365 @@ public class Main extends GLFWWindowSizeCallback implements Runnable
         LEVEL_2,
         LEVEL_3,
         LEVEL_4
+    }
+}
+
+class Window extends GLFWWindowSizeCallback
+{
+
+    // Window AspectRatio
+
+    private static final int ASPECT_RATIO_WIDTH = 16;
+    private static final int ASPECT_RATIO_HEIGHT = 9;
+
+    private long id;
+    private int width;
+    private int height;
+
+    public Window(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+    }
+
+    public void Initialize()
+    {
+        if (!glfwInit())
+        {
+            throw new IllegalStateException("Error: GLFW couldn't initialize");
+        }
+
+        // Setting up window hints
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+    }
+
+    public void Create()
+    {
+
+        this.id = glfwCreateWindow(this.width, this.height, "Case New York | 1.0", 0, 0);
+
+        if (this.id == 0)
+        {
+            throw new IllegalStateException("Error: Failed to create the GLFW window");
+        }
+
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        assert vidMode != null;
+        glfwSetWindowPos(this.id, (vidMode.width() - this.width) / 2, (vidMode.height() - this.height) / 2);
+
+        glfwMakeContextCurrent(this.id);
+        GL.createCapabilities();
+
+        // Setting up the Window Icon and Setting up a custom Cursor
+
+        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer("icon.png");
+        GLFWImage image = GLFWImage.malloc();
+        Image imageSize = new Image("icon.png");
+        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
+
+        GLFWImage.Buffer images = GLFWImage.malloc(1);
+        images.put(0, image);
+
+        glfwSetWindowIcon(id, images);
+
+        // Setting up Size callback
+
+        glfwSetWindowSizeCallback(this.id, this);
+
+        // This function will resize the window if the aspect ratio changes.
+        //   The current AspectRatio is 16:9 and the highest
+
+
+        glfwSetWindowAspectRatio(this.id, ASPECT_RATIO_WIDTH, ASPECT_RATIO_HEIGHT);
+    }
+
+    public void Show()
+    {
+        glfwShowWindow(id);
+    }
+
+    // WindowSize callback
+
+    @Override
+    public void invoke(long window, int width, int height)
+    {
+        if (this.width != width || this.height != height)
+            Resize(width, height);
+    }
+
+    public void Update()
+    {
+        glfwPollEvents();
+    }
+
+    public void Render()
+    {
+        glfwSwapBuffers(id);
+    }
+
+    public void Dispose()
+    {
+        glfwDestroyWindow(id);
+        glfwTerminate();
+    }
+
+    public boolean IsCloseRequested()
+    {
+        return glfwWindowShouldClose(id);
+    }
+
+    public void Resize(int width, int height)
+    {
+        this.width = width;
+        this.height = height;
+
+        ChangeViewPort(width, height);
+    }
+
+    public void ChangeViewPort(int width, int height)
+    {
+        glViewport(0,0, width, height);
+    }
+
+    public long GetId()
+    {
+        return id;
+    }
+
+    public int GetWidth()
+    {
+        return width;
+    }
+
+    public int GetHeight()
+    {
+        return height;
+    }
+}
+
+class FullscreenManager
+{
+
+    private boolean isFullscreen;
+
+    private final Window window;
+    private final int maxScreenWidth;
+    private final int maxScreenHeight;
+    private final int xPosition;
+    private final int yPosition;
+
+    public FullscreenManager(Window window)
+    {
+        this.window = window;
+
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+        assert vidMode != null;
+        maxScreenWidth = vidMode.width();
+        maxScreenHeight = vidMode.height();
+        xPosition = (maxScreenWidth - window.GetWidth()) / 2;
+        yPosition = (maxScreenHeight - window.GetHeight()) / 2;
+    }
+
+    public void Update()
+    {
+        if (Keyboard.IsKeyPushed(GLFW_KEY_F11))
+            ToggleFullscreen();
+    }
+
+    private void ToggleFullscreen()
+    {
+        if (!isFullscreen)
+        {
+            glfwSetWindowSizeCallback(window.GetId(), null);
+            glfwSetWindowSize(window.GetId(), maxScreenWidth, maxScreenHeight);
+
+            window.ChangeViewPort(maxScreenWidth, maxScreenHeight);
+
+            glfwSetWindowMonitor(window.GetId(), glfwGetPrimaryMonitor(), 0,0, this.maxScreenWidth, this.maxScreenHeight, 60);
+
+            isFullscreen = true;
+        }
+        else
+        {
+            glfwSetWindowSizeCallback(window.GetId(), window);
+            glfwSetWindowSize(window.GetId(), window.GetWidth(), window.GetHeight());
+
+            window.ChangeViewPort(window.GetWidth(), window.GetHeight());
+
+            glfwSetWindowMonitor(window.GetId(), 0, xPosition, yPosition, window.GetWidth(), window.GetHeight(), (int)Main.FRAME_CAP);
+
+            isFullscreen = false;
+        }
+    }
+
+    public boolean IsFullscreen()
+    {
+        return isFullscreen;
+    }
+
+    public int GetMaxScreenWidth()
+    {
+        return maxScreenWidth;
+    }
+
+    public int GetMaxScreenHeight()
+    {
+        return maxScreenHeight;
+    }
+}
+
+class WindowCursor
+{
+    private final long id;
+
+    public WindowCursor(long window)
+    {
+        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer("cursor.png");
+        GLFWImage image = GLFWImage.malloc();
+        Image imageSize = new Image("cursor.png");
+        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
+
+
+        id = glfwCreateCursor(image, 0, 0);
+        glfwSetCursor(window, this.id);
+    }
+
+    public void Destroy()
+    {
+        glfwDestroyCursor(this.id);
+    }
+}
+
+interface Game
+{
+    void Initialize();
+
+    // Updating game using the Game Thread
+
+    void Update(float delta);
+
+    // Rendering using a different Thread;
+
+    void Render();
+
+    // CleanUp Method. Only used by the RenderThread
+
+    void CleanUp();
+}
+
+class GameThread implements Runnable
+{
+    private boolean isRunning;
+    private final Thread thread;
+    private final Game game;
+
+    public GameThread(Game game, String name)
+    {
+        this.thread = new Thread(this, name);
+        this.game = game;
+    }
+
+    public void Start()
+    {
+        if (isRunning)
+            return;
+
+        thread.start();
+    }
+
+    public void Stop()
+    {
+        if (!isRunning)
+            return;
+
+        isRunning = false;
+    }
+
+    @Override
+    public void run()
+    {
+        System.out.println("TEST");
+        isRunning = true;
+
+        game.Initialize();
+
+        int frames = 0;
+        double frameCounter = 0;
+        double lastTime = (double)System.nanoTime()/(double)1000000000L;
+        double unprocessedTime = 0;
+
+        while (this.isRunning)
+        {
+            boolean render = false;
+
+            double startTime = (double)System.nanoTime()/(double)1000000000L;
+            double passedTime = startTime - lastTime;
+            lastTime = startTime;
+
+            unprocessedTime += passedTime;
+            frameCounter += passedTime;
+
+
+
+            while (unprocessedTime > Main.FRAME_TIME)
+            {
+                render = true;
+
+                unprocessedTime -= Main.FRAME_TIME;
+
+                game.Update((float) Main.FRAME_TIME);
+
+                if (frameCounter >= 1.0)
+                {
+                    System.out.println(frames);
+                    frames = 0;
+                    frameCounter = 0;
+                }
+            }
+
+            game.Render();
+            frames++;
+
+            if (!render)
+            {
+                this.SleepThread();
+            }
+        }
+
+        game.CleanUp();
+        JoinThread();
+    }
+
+    private void SleepThread()
+    {
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void JoinThread()
+    {
+        while (thread.isAlive())
+        {
+            try
+            {
+                thread.join(100);
+                break;
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
     }
 }

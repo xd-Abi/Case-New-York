@@ -17,7 +17,7 @@ public class FirstScene extends Scenegraph
     public void Initialize()
     {
 
-        background = new GuiBackground("scene1/background_letter");
+        background = new GuiBackground("scene1/background_letter.png");
 
 
         AddNode(background);
