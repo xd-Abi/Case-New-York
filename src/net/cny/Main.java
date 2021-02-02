@@ -13,12 +13,10 @@ import net.cny.model.Mesh;
 import net.cny.pipeline.ShaderProgram;
 import net.cny.platform.Keyboard;
 import net.cny.platform.Mouse;
-import net.cny.scenegraph.Node;
 import net.cny.scenegraph.Scenegraph;
 import net.cny.util.ImageLoader;
 import net.cny.util.ResourceLoader;
 import org.lwjgl.BufferUtils;
-import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
@@ -42,6 +40,8 @@ public class Main implements Runnable
 
     private boolean isRunning;
     private boolean canPause;
+    private float delta;
+
 
     // Window Variables
 
@@ -62,10 +62,6 @@ public class Main implements Runnable
 
     private int maxScreenWidth;
     private int maxScreenHeight;
-
-    // Config
-
-    private Properties config;
 
     // Classes
 
@@ -94,7 +90,7 @@ public class Main implements Runnable
 
     private void LoadFromConfig() throws IOException
     {
-        config = new Properties();
+        Properties config = new Properties();
         config.load(ResourceLoader.GetResource("cny-properties.net"));
 
         // Loading Window Configs
@@ -352,38 +348,43 @@ public class Main implements Runnable
 
     private String GetVertexShader()
     {
-        return """
-				#version 330
+        return
+        """
+           #version 330
 
-				layout (location = 0) in vec2 position;
-				layout (location = 1) in vec2 textureCoordinates;
+           layout (location = 0) in vec2 position;
+           layout (location = 1) in vec2 textureCoordinates;
 
-				out vec2 passTextureCoordinates;
+           out vec2 passTextureCoordinates;
 
-				uniform mat4 worldMatrix;
+           uniform mat4 worldMatrix;
 
-				void main()
-				{
-				    gl_Position = worldMatrix * vec4(position.x, position.y, 0, 1);
-					passTextureCoordinates = textureCoordinates;
-				}""";
+           void main()
+           {
+                gl_Position = worldMatrix * vec4(position.x, position.y, 0, 1);
+                passTextureCoordinates = textureCoordinates;
+           }
+        """;
     }
 
 
     private String GetFragmentShader()
     {
-        return """
-				#version 330
+        return
+        """
+            #version 330
 
-				in vec2 passTextureCoordinates;
+            in vec2 passTextureCoordinates;
 
-				out vec4 FragColor;
+            out vec4 FragColor;
 
-				uniform sampler2D sampler;
+            uniform sampler2D sampler;
 
-				void main(){
-				    FragColor = texture(sampler, passTextureCoordinates);
-				}""";
+            void main()
+            {
+                FragColor = texture(sampler, passTextureCoordinates);
+            }
+        """;
     }
 
     @Override
@@ -429,7 +430,10 @@ public class Main implements Runnable
                     Stop();
                 }
 
-                Update((float) FRAME_TIME);
+                // Setting delta and Updating game
+
+                SetDelta();
+                Update();
 
                 if (frameCounter >= 1.0)
                 {
@@ -465,12 +469,12 @@ public class Main implements Runnable
         }
     }
 
-    private void Update(float delta)
+    private void Update()
     {
 
         // Update Game
 
-        UpdateGame(delta);
+        UpdateGame();
 
         // Update Inputs
 
@@ -480,7 +484,7 @@ public class Main implements Runnable
         glfwPollEvents();
     }
 
-    private void UpdateGame(float delta)
+    private void UpdateGame()
     {
         if (this.scenegraph != null)
         {
@@ -672,6 +676,11 @@ public class Main implements Runnable
     public void SetState(GameState state)
     {
         this.state = state;
+    }
+
+    private void SetDelta()
+    {
+        this.delta = (float) 0.016666668;
     }
 
     public enum GameState
