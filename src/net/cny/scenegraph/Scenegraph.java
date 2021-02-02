@@ -1,6 +1,7 @@
 package net.cny.scenegraph;
 
 import net.cny.Main;
+import net.cny.Main;
 
 import java.util.ArrayList;
 

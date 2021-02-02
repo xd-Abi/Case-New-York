@@ -1,6 +1,7 @@
 package net.cny.gui.menu;
 
 import net.cny.Main;
+import net.cny.Main;
 import net.cny.gui.GuiBackground;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiButton;

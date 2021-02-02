@@ -1,6 +1,7 @@
 package net.cny.level;
 
 import net.cny.Main;
+import net.cny.Main;
 import net.cny.gui.GuiBackground;
 import net.cny.scenegraph.Scenegraph;
 

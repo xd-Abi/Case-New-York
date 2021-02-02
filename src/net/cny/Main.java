@@ -1,95 +1,283 @@
 package net.cny;
 
 import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.opengl.GL.*;
 import static org.lwjgl.opengl.GL11.*;
+import static org.lwjgl.system.MemoryUtil.NULL;
+
 
 import net.cny.gui.menu.MainMenu;
 import net.cny.gui.menu.PauseMenu;
 import net.cny.image.Image;
 import net.cny.model.Mesh;
-import net.cny.pipeline.DefaultShaderProgram;
 import net.cny.pipeline.ShaderProgram;
 import net.cny.platform.Keyboard;
 import net.cny.platform.Mouse;
 import net.cny.scenegraph.Node;
 import net.cny.scenegraph.Scenegraph;
 import net.cny.util.ImageLoader;
+import net.cny.util.ResourceLoader;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFW;
 import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.openal.*;
-import org.lwjgl.opengl.GL;
 import org.lwjgl.opengl.GL13;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.IntBuffer;
+import java.util.Properties;
 
-
-public class Main implements Game
+public class Main implements Runnable
 {
 
     public static final double FRAME_CAP = 60;
     public static final double FRAME_TIME = 1.0 / FRAME_CAP;
 
+    // Static instance of Main
+
     public static final Main cny = new Main();
 
+    private boolean isRunning;
     private boolean canPause;
 
-    private GameThread thread;
-    private GameState state;
+    // Window Variables
 
-    private Window window;
-    private WindowCursor windowCursor;
-    private FullscreenManager fullscreenManager;
+    private boolean isFullscreen;
 
-    // Input
+    private long windowId;
+    private int displayWidth;
+    private int displayHeight;
+    private String displayTitle;
+    private String displayIconPath;
 
+    // Cursor Variables
+
+    private long windowCursorId;
+    private String windowCursorPath;
+
+    // Primary Monitor Size
+
+    private int maxScreenWidth;
+    private int maxScreenHeight;
+
+    // Config
+
+    private Properties config;
+
+    // Classes
+
+    private Thread thread;
     private Keyboard keyboard;
     private Mouse mouse;
+    private GameState state;
 
-    // Rendering Objects
-
-    private Scenegraph scenegraph;
     private Mesh mesh;
     private ShaderProgram shaderProgram;
+    private Scenegraph scenegraph;
 
-    private Main() { }
+    private GLFWWindowSizeCallback windowSizeCallback;
+
+    private Main()
+    {
+        try
+        {
+            LoadFromConfig();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void LoadFromConfig() throws IOException
+    {
+        config = new Properties();
+        config.load(ResourceLoader.GetResource("cny-properties.net"));
+
+        // Loading Window Configs
+
+        displayWidth = Integer.parseInt(config.getProperty("display-width"));
+        displayHeight = Integer.parseInt(config.getProperty("display-height"));
+        displayTitle = config.getProperty("display-title");
+        displayIconPath = config.getProperty("display-icon-path");
+
+        // Window Cursor
+
+        windowCursorPath = config.getProperty("cursor-path");
+
+        config.clear();
+    }
 
     public void Start()
     {
-        thread = new GameThread(this, "CNY: Client");
-        thread.Start();
+        if (isRunning)
+        {
+            return;
+        }
+
+        isRunning = true;
+        thread = new Thread(this, "CNY: Client");
+        thread.start();
     }
 
     public void Stop()
     {
-        thread.Stop();
+        if (!isRunning)
+        {
+            return;
+        }
+
+        isRunning = false;
+    }
+
+    private void InitGLFW()
+    {
+        if (!glfwInit())
+        {
+            throw new IllegalStateException("Error: GLFW failed to initialize");
+        }
+
+        // Setting up window hints
+
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
 
     private void CreateWindow()
     {
-        window = new Window(1280, 720);
-        window.Initialize();
-        window.Create();
+        // Initialize GLFW
 
-        windowCursor = new WindowCursor(window.GetId());
+        InitGLFW();
+
+        // Creating the Window
+
+        windowId = glfwCreateWindow(displayWidth, displayHeight, displayTitle, NULL, NULL);
+
+        if (windowId == NULL)
+        {
+            throw new IllegalStateException("Error: Failed to create the GLFW window");
+        }
+
+        // Centering the window
+
+        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
+
+        if (vidMode != null)
+        {
+            maxScreenWidth = vidMode.width();
+            maxScreenHeight = vidMode.height();
+
+            glfwSetWindowPos(windowId, (maxScreenWidth - displayWidth) / 2, (maxScreenHeight - displayHeight) / 2);
+        }
+
+        // Creating a Context
+        // OpenGL Context works only for a single Thread
+
+        glfwMakeContextCurrent(windowId);
+        createCapabilities();
+
+        // Creating GLFWImage for the window icon
+
+        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer(displayIconPath);
+        GLFWImage image = GLFWImage.malloc();
+        Image imageSize = new Image(displayIconPath);
+        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
+
+        // Putting the GLFWImage in a buffer
+
+        GLFWImage.Buffer IconImages = GLFWImage.malloc(1);
+        IconImages.put(0, image);
+
+        // Setting up the window icon
+
+        glfwSetWindowIcon(windowId, IconImages);
+
+        // Setting up some useful functions
+        // Changing the AspectRatio to be always 16:9
+
+        glfwSetWindowAspectRatio(windowId, 16, 9);
+        glfwSetWindowSizeCallback(windowId, windowSizeCallback = new GLFWWindowSizeCallback()
+        {
+
+            // Changing the window Size and Viewport if player resizes
+
+            @Override
+            public void invoke(long window, int width, int height)
+            {
+                if ((displayWidth != width || displayHeight != height) && !isFullscreen)
+                {
+                    ResizeWindow(width, height);
+                    ChangeViewPort(width, height);
+                }
+            }
+        });
+
+        // Turing off Vsync for better Performance
+
+        glfwSwapInterval(0);
+
+        // Showing Window
+
+        glfwShowWindow(windowId);
     }
 
-    private void InitializeOpenAL()
+    private void CreateWindowCursor()
     {
+        // Creating GLFWImage for the window cursor
+
+        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer(windowCursorPath);
+        GLFWImage image = GLFWImage.malloc();
+        Image imageSize = new Image(windowCursorPath);
+        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
+
+        // Creating the window Cursor and
+        // Setting it to the GLFW Window
+
+        windowCursorId = glfwCreateCursor(image, 0, 0);
+        glfwSetCursor(windowId, windowCursorId);
+    }
+
+    private void CreateInput()
+    {
+        keyboard = new Keyboard(windowId);
+        mouse = new Mouse();
+    }
+
+    private void InitOpenAL()
+    {
+        // Getting the current OpenAL Device
+
         long device = ALC10.alcOpenDevice((ByteBuffer) null);
 
         ALCCapabilities deviceCapabilities = ALC.createCapabilities(device);
 
+        // Creating new Context and setting it up
+
+        long newContext = ALC10.alcCreateContext(device, CreateOpenALContext());
+
+        if (!ALC10.alcMakeContextCurrent(newContext))
+        {
+            throw new IllegalStateException("Error: Failed to create OpenAL context current");
+        }
+
+        AL.createCapabilities(deviceCapabilities);
+    }
+
+    private IntBuffer CreateOpenALContext()
+    {
         IntBuffer openALContext = BufferUtils.createIntBuffer(16);
 
         openALContext.put(ALC10.ALC_REFRESH);
         openALContext.put(60);
 
         openALContext.put(ALC10.ALC_SYNC);
-        openALContext.put(ALC10.ALC_TRUE);
+        openALContext.put(ALC10.ALC_FALSE);
 
         openALContext.put(EXTEfx.ALC_MAX_AUXILIARY_SENDS);
         openALContext.put(2);
@@ -97,100 +285,209 @@ public class Main implements Game
         openALContext.put(0);
         openALContext.flip();
 
-        long newContext = ALC10.alcCreateContext(device, openALContext);
-
-        if (!ALC10.alcMakeContextCurrent(newContext)) {
-            throw new IllegalStateException("Error: Failed to make context current");
-        }
-
-        AL.createCapabilities(deviceCapabilities);
+        return openALContext;
     }
 
-    private void InitializeRendering()
+    private void InitRendering()
     {
-        float[] vertices = new float[]
-        {
-            -0.5f,  0.5f,      // Top Left
-            -0.5f, -0.5f,      // Bottom Left
-             0.5f, -0.5f,      // Bottom Right
-             0.5f,  0.5f       // Top Right
-         };
+        // Creating the 2D mesh for rendering the hole scene
 
-        float[] textureCoordinates = new float[]
-        {
-             0, 0,
-             0, 1,
-             1, 1,
-             1, 0
-        };
+        CreateMesh();
 
-        int[] indices = new int[] {3, 2, 1, 1, 0, 3};
+        // Creating the default ShaderProgram
 
-        this.mesh = new Mesh();
-        this.mesh.Create(vertices, textureCoordinates, indices);
+        CreateShaderProgram();
 
-        this.shaderProgram = new DefaultShaderProgram();
+        // Setting the first scene to be
+        // the MainMenu
 
         SetScenegraph(new MainMenu(), true);
 
-        // Disabling for transparent textures
+        // These function will allow a texture to be transparent
 
         glDisable(GL_DEPTH_TEST);
         glEnable(GL_BLEND);
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
+
         System.out.println("OpenGL Version: " + glGetString(GL_VERSION));
         System.out.println("OpenAL Version: " + AL10.alGetString(AL10.AL_VERSION));
     }
 
-    @Override
-    public void Initialize()
+    private void CreateMesh()
     {
-        this.CreateWindow();
+        float[] vertices = new float[]
+                {
+                        -0.5f,  0.5f,      // Top Left
+                        -0.5f, -0.5f,      // Bottom Left
+                        0.5f, -0.5f,      // Bottom Right
+                        0.5f,  0.5f       // Top Right
+                };
 
-        // Creating input
+        float[] textureCoordinates = new float[]
+                {
+                        0, 0,
+                        0, 1,
+                        1, 1,
+                        1, 0
+                };
 
-        this.keyboard = new Keyboard(this.window.GetId());
-        this.mouse = new Mouse();
+        int[] indices = new int[] {3, 2, 1, 1, 0, 3};
 
-        fullscreenManager = new FullscreenManager(window);
+        mesh = new Mesh();
+        mesh.Create(vertices, textureCoordinates, indices);
+    }
 
-        // Initializing the SoundManager / OpenAL
+    private void CreateShaderProgram()
+    {
+        shaderProgram = new ShaderProgram();
+        shaderProgram.AddVertexShader(GetVertexShader());
+        shaderProgram.AddFragmentShader(GetFragmentShader());
+        shaderProgram.CompileShader();
 
-        this.InitializeOpenAL();
+        // Adding the worldMatrix
 
-        this.InitializeRendering();
+        shaderProgram.AddUniform("worldMatrix");
+    }
 
-        this.canPause = true;
+    private String GetVertexShader()
+    {
+        return """
+				#version 330
+
+				layout (location = 0) in vec2 position;
+				layout (location = 1) in vec2 textureCoordinates;
+
+				out vec2 passTextureCoordinates;
+
+				uniform mat4 worldMatrix;
+
+				void main()
+				{
+				    gl_Position = worldMatrix * vec4(position.x, position.y, 0, 1);
+					passTextureCoordinates = textureCoordinates;
+				}""";
+    }
 
 
-        // Show Window
+    private String GetFragmentShader()
+    {
+        return """
+				#version 330
 
-        window.Show();
+				in vec2 passTextureCoordinates;
+
+				out vec4 FragColor;
+
+				uniform sampler2D sampler;
+
+				void main(){
+				    FragColor = texture(sampler, passTextureCoordinates);
+				}""";
     }
 
     @Override
-    public void Update(float delta)
+    public void run()
     {
-        this.UpdateGame(delta);
+        // Initialising Core
 
-        fullscreenManager.Update();
+        CreateWindow();
+        CreateWindowCursor();
+        CreateInput();
 
-        this.keyboard.Update();
-        this.mouse.Update();
+        // Initialising OpenAL and OpenGL
 
-        if (window.IsCloseRequested())
-            Stop();
+        InitOpenAL();
+        InitRendering();
 
-        window.Update();
+        int frames = 0;
+        double frameCounter = 0;
+        double lastTime = (double)System.nanoTime()/(double)1000000000L;
+        double unprocessedTime = 0;
+
+        // Game Loop
+
+        while (this.isRunning)
+        {
+            boolean render = false;
+
+            double startTime = (double)System.nanoTime()/(double)1000000000L;
+            double passedTime = startTime - lastTime;
+            lastTime = startTime;
+
+            unprocessedTime += passedTime;
+            frameCounter += passedTime;
+
+            while (unprocessedTime > FRAME_TIME)
+            {
+                render = true;
+
+                unprocessedTime -= FRAME_TIME;
+
+                if (glfwWindowShouldClose(windowId))
+                {
+                    Stop();
+                }
+
+                Update((float) FRAME_TIME);
+
+                if (frameCounter >= 1.0)
+                {
+                    System.out.println(frames);
+                    frames = 0;
+                    frameCounter = 0;
+                }
+            }
+
+            // Rendering the game
+
+            Render();
+            frames++;
+
+            if (!render)
+            {
+                this.SleepThread();
+            }
+        }
+
+        Shutdown();
+    }
+
+    private void SleepThread()
+    {
+        try
+        {
+            Thread.sleep(1);
+        }
+        catch (InterruptedException e)
+        {
+            e.printStackTrace();
+        }
+    }
+
+    private void Update(float delta)
+    {
+
+        // Update Game
+
+        UpdateGame(delta);
+
+        // Update Inputs
+
+        keyboard.Update();
+        mouse.Update();
+
+        glfwPollEvents();
     }
 
     private void UpdateGame(float delta)
     {
         if (this.scenegraph != null)
+        {
             this.scenegraph.Update(delta);
+        }
 
-        switch (this.state)
+        switch (state)
         {
 
             // Disable PauseMenu
@@ -198,51 +495,81 @@ public class Main implements Game
             case MAIN_MENU, SETTINGS_MENU, FIRST_SCENE -> canPause = false;
 
             // Enable PauseMenu on levels
+
             case LEVEL_1, LEVEL_2, LEVEL_3, LEVEL_4 -> canPause = true;
         }
 
-        if (this.canPause && Keyboard.IsKeyPushed(GLFW.GLFW_KEY_ESCAPE) && this.state != GameState.PAUSE_MENU) {
-            assert this.scenegraph != null;
-            this.scenegraph.OnPause();
+        if (this.canPause && Keyboard.IsKeyPushed(org.lwjgl.glfw.GLFW.GLFW_KEY_ESCAPE) && this.state != GameState.PAUSE_MENU)
+        {
+            if (scenegraph != null)
+            {
+                scenegraph.OnPause();
+            }
 
-            Scenegraph oldScene = this.scenegraph;
+            Scenegraph oldScene = scenegraph;
             SetScenegraph(new PauseMenu(oldScene), true);
+        }
+
+        if (Keyboard.IsKeyPushed(GLFW_KEY_F11))
+        {
+            ToggleFullscreen();
         }
     }
 
-    @Override
-    public void Render()
+    private void ClearScreen()
     {
-        // Clearing the screen
         glClear(GL_COLOR_BUFFER_BIT);
+    }
 
-        for (Node node : this.scenegraph.GetNodeObjects())
+    private void Render()
+    {
+        ClearScreen();
+
+        for (Node node : scenegraph.GetNodeObjects())
         {
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
             node.GetImage().Bind();
-            this.shaderProgram.Bind();
-            this.shaderProgram.UpdateUniforms(node);
-            this.mesh.Draw();
+            shaderProgram.Bind();
+            shaderProgram.SetUniform("worldMatrix", node.GetWorldMatrix());
+            mesh.Draw();
             node.GetImage().Unbind();
         }
 
         // Rendering the GLFW window
-        window.Render();
+
+        glfwSwapBuffers(windowId);
     }
 
-
-    @Override
-    public void CleanUp()
+    private void ToggleFullscreen()
     {
+        if (!isFullscreen)
+        {
+            isFullscreen = true;
+            glfwSetWindowMonitor(windowId, glfwGetPrimaryMonitor(), 0, 0, maxScreenWidth, maxScreenHeight, 60);
+            ChangeViewPort(maxScreenWidth, maxScreenHeight);
+        }
+        else
+        {
+            isFullscreen = false;
+            ChangeViewPort(displayWidth, displayHeight);
+            glfwSetWindowMonitor(windowId, 0, (maxScreenWidth-displayWidth) / 2, (maxScreenHeight-displayHeight) / 2, displayWidth, displayHeight, 60);
+        }
+    }
 
+    private void Shutdown()
+    {
         // Delete the game objects
 
-        if (this.scenegraph != null)
-            this.scenegraph.CleanUp();
+        if (scenegraph != null)
+        {
+            scenegraph.CleanUp();
+        }
 
-        this.mesh.Delete();
-        this.shaderProgram.Delete();
+        // Deleting the mesh and ShaderProgram
+
+        mesh.Delete();
+        shaderProgram.Delete();
 
         // Destroy OpenAL
 
@@ -251,40 +578,80 @@ public class Main implements Game
         ALC10.alcDestroyContext(openALContext);
         ALC10.alcCloseDevice(openALContext);
 
-        // Destroy Input and Window
+        // Destroy Input
 
-        this.keyboard.Destroy();
-        this.mouse.Destroy();
+        keyboard.Destroy();
+        mouse.Destroy();
 
+        // Setting glfw Callbacks free
 
-        windowCursor.Destroy();
-        window.Dispose();
+        windowSizeCallback.free();
+
+        // Destroy all GLFW function used by the game
+
+        glfwDestroyCursor(windowCursorId);
+        glfwDestroyWindow(windowId);
+        glfwTerminate();
+
+        JoinThread();
     }
+
+    private void JoinThread()
+    {
+        while (thread.isAlive())
+        {
+            try
+            {
+                thread.join(100);
+                break;
+            }
+            catch (InterruptedException e)
+            {
+                e.printStackTrace();
+            }
+        }
+    }
+
 
     public void ForceWindowToClose()
     {
-        glfwSetWindowShouldClose(window.GetId(), true);
+        glfwSetWindowShouldClose(windowId, true);
     }
 
-    public long GetWindow()
+    private void ResizeWindow(int width, int height)
     {
-        return window.GetId();
+        displayWidth = width;
+        displayHeight = height;
     }
 
-    public int GetWidth()
+    private void ChangeViewPort(int width, int height)
     {
-        if (fullscreenManager.IsFullscreen())
-            return fullscreenManager.GetMaxScreenWidth();
-
-        return window.GetWidth();
+        glViewport(0,0, width, height);
     }
 
-    public int GetHeight()
+    public long GetWindowId()
     {
-        if (fullscreenManager.IsFullscreen())
-            return fullscreenManager.GetMaxScreenHeight();
+        return windowId;
+    }
 
-        return window.GetHeight();
+    public int GetDisplayWidth()
+    {
+        if (isFullscreen)
+        {
+            return maxScreenWidth;
+        }
+
+        return displayWidth;
+    }
+
+    public int GetDisplayHeight()
+    {
+        if (isFullscreen)
+        {
+            return maxScreenHeight;
+        }
+
+        return displayHeight;
     }
 
     public void SetScenegraph(Scenegraph newScene, boolean shouldInit)
@@ -295,14 +662,15 @@ public class Main implements Game
         }
 
         if (shouldInit)
+        {
             newScene.Initialize();
+        }
 
         this.scenegraph = newScene;
     }
 
     public void SetState(GameState state)
     {
-
         this.state = state;
     }
 
@@ -324,367 +692,5 @@ public class Main implements Game
         LEVEL_2,
         LEVEL_3,
         LEVEL_4
-    }
-}
-
-class Window extends GLFWWindowSizeCallback
-{
-
-    // Window AspectRatio
-
-    private static final int ASPECT_RATIO_WIDTH = 16;
-    private static final int ASPECT_RATIO_HEIGHT = 9;
-
-    private long id;
-    private int width;
-    private int height;
-
-    public Window(int width, int height)
-    {
-        this.width = width;
-        this.height = height;
-    }
-
-    public void Initialize()
-    {
-        if (!glfwInit())
-        {
-            throw new IllegalStateException("Error: GLFW couldn't initialize");
-        }
-
-        // Setting up window hints
-
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-    }
-
-    public void Create()
-    {
-
-        this.id = glfwCreateWindow(this.width, this.height, "Case New York | 1.0", 0, 0);
-
-        if (this.id == 0)
-        {
-            throw new IllegalStateException("Error: Failed to create the GLFW window");
-        }
-
-        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        assert vidMode != null;
-        glfwSetWindowPos(this.id, (vidMode.width() - this.width) / 2, (vidMode.height() - this.height) / 2);
-
-        glfwMakeContextCurrent(this.id);
-        GL.createCapabilities();
-
-        // Setting up the Window Icon and Setting up a custom Cursor
-
-        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer("icon.png");
-        GLFWImage image = GLFWImage.malloc();
-        Image imageSize = new Image("icon.png");
-        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
-
-        GLFWImage.Buffer images = GLFWImage.malloc(1);
-        images.put(0, image);
-
-        glfwSetWindowIcon(id, images);
-
-        // Setting up Size callback
-
-        glfwSetWindowSizeCallback(this.id, this);
-
-        // This function will resize the window if the aspect ratio changes.
-        //   The current AspectRatio is 16:9 and the highest
-
-
-        glfwSetWindowAspectRatio(this.id, ASPECT_RATIO_WIDTH, ASPECT_RATIO_HEIGHT);
-    }
-
-    public void Show()
-    {
-        glfwShowWindow(id);
-    }
-
-    // WindowSize callback
-
-    @Override
-    public void invoke(long window, int width, int height)
-    {
-        if (this.width != width || this.height != height)
-            Resize(width, height);
-    }
-
-    public void Update()
-    {
-        glfwPollEvents();
-    }
-
-    public void Render()
-    {
-        glfwSwapBuffers(id);
-    }
-
-    public void Dispose()
-    {
-        glfwDestroyWindow(id);
-        glfwTerminate();
-    }
-
-    public boolean IsCloseRequested()
-    {
-        return glfwWindowShouldClose(id);
-    }
-
-    public void Resize(int width, int height)
-    {
-        this.width = width;
-        this.height = height;
-
-        ChangeViewPort(width, height);
-    }
-
-    public void ChangeViewPort(int width, int height)
-    {
-        glViewport(0,0, width, height);
-    }
-
-    public long GetId()
-    {
-        return id;
-    }
-
-    public int GetWidth()
-    {
-        return width;
-    }
-
-    public int GetHeight()
-    {
-        return height;
-    }
-}
-
-class FullscreenManager
-{
-
-    private boolean isFullscreen;
-
-    private final Window window;
-    private final int maxScreenWidth;
-    private final int maxScreenHeight;
-    private final int xPosition;
-    private final int yPosition;
-
-    public FullscreenManager(Window window)
-    {
-        this.window = window;
-
-        GLFWVidMode vidMode = glfwGetVideoMode(glfwGetPrimaryMonitor());
-        assert vidMode != null;
-        maxScreenWidth = vidMode.width();
-        maxScreenHeight = vidMode.height();
-        xPosition = (maxScreenWidth - window.GetWidth()) / 2;
-        yPosition = (maxScreenHeight - window.GetHeight()) / 2;
-    }
-
-    public void Update()
-    {
-        if (Keyboard.IsKeyPushed(GLFW_KEY_F11))
-            ToggleFullscreen();
-    }
-
-    private void ToggleFullscreen()
-    {
-        if (!isFullscreen)
-        {
-            glfwSetWindowSizeCallback(window.GetId(), null);
-            glfwSetWindowSize(window.GetId(), maxScreenWidth, maxScreenHeight);
-
-            window.ChangeViewPort(maxScreenWidth, maxScreenHeight);
-
-            glfwSetWindowMonitor(window.GetId(), glfwGetPrimaryMonitor(), 0,0, this.maxScreenWidth, this.maxScreenHeight, 60);
-
-            isFullscreen = true;
-        }
-        else
-        {
-            glfwSetWindowSizeCallback(window.GetId(), window);
-            glfwSetWindowSize(window.GetId(), window.GetWidth(), window.GetHeight());
-
-            window.ChangeViewPort(window.GetWidth(), window.GetHeight());
-
-            glfwSetWindowMonitor(window.GetId(), 0, xPosition, yPosition, window.GetWidth(), window.GetHeight(), (int)Main.FRAME_CAP);
-
-            isFullscreen = false;
-        }
-    }
-
-    public boolean IsFullscreen()
-    {
-        return isFullscreen;
-    }
-
-    public int GetMaxScreenWidth()
-    {
-        return maxScreenWidth;
-    }
-
-    public int GetMaxScreenHeight()
-    {
-        return maxScreenHeight;
-    }
-}
-
-class WindowCursor
-{
-    private final long id;
-
-    public WindowCursor(long window)
-    {
-        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer("cursor.png");
-        GLFWImage image = GLFWImage.malloc();
-        Image imageSize = new Image("cursor.png");
-        image.set(imageSize.GetWidth(), imageSize.GetHeight(), buffer);
-
-
-        id = glfwCreateCursor(image, 0, 0);
-        glfwSetCursor(window, this.id);
-
-        glfwSwapInterval(0);
-    }
-
-    public void Destroy()
-    {
-        glfwDestroyCursor(this.id);
-    }
-}
-
-interface Game
-{
-    void Initialize();
-
-    // Updating game using the Game Thread
-
-    void Update(float delta);
-
-    // Rendering using a different Thread;
-
-    void Render();
-
-    // CleanUp Method. Only used by the RenderThread
-
-    void CleanUp();
-}
-
-class GameThread implements Runnable
-{
-    private boolean isRunning;
-    private final Thread thread;
-    private final Game game;
-
-    public GameThread(Game game, String name)
-    {
-        this.thread = new Thread(this, name);
-        this.game = game;
-    }
-
-    public void Start()
-    {
-        if (isRunning)
-            return;
-
-        thread.start();
-    }
-
-    public void Stop()
-    {
-        if (!isRunning)
-            return;
-
-        isRunning = false;
-    }
-
-    @Override
-    public void run()
-    {
-        System.out.println("TEST");
-        isRunning = true;
-
-        game.Initialize();
-
-        int frames = 0;
-        double frameCounter = 0;
-        double lastTime = (double)System.nanoTime()/(double)1000000000L;
-        double unprocessedTime = 0;
-
-        while (this.isRunning)
-        {
-            boolean render = false;
-
-            double startTime = (double)System.nanoTime()/(double)1000000000L;
-            double passedTime = startTime - lastTime;
-            lastTime = startTime;
-
-            unprocessedTime += passedTime;
-            frameCounter += passedTime;
-
-
-
-            while (unprocessedTime > Main.FRAME_TIME)
-            {
-                render = true;
-
-                unprocessedTime -= Main.FRAME_TIME;
-
-                game.Update((float) Main.FRAME_TIME);
-
-                if (frameCounter >= 1.0)
-                {
-                    System.out.println(frames);
-                    frames = 0;
-                    frameCounter = 0;
-                }
-            }
-
-            game.Render();
-            frames++;
-
-            if (!render)
-            {
-                this.SleepThread();
-            }
-        }
-
-        game.CleanUp();
-        JoinThread();
-    }
-
-    private void SleepThread()
-    {
-        try
-        {
-            Thread.sleep(1);
-        }
-        catch (InterruptedException e)
-        {
-            e.printStackTrace();
-        }
-    }
-
-    private void JoinThread()
-    {
-        while (thread.isAlive())
-        {
-            try
-            {
-                thread.join(100);
-                break;
-            }
-            catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
-        }
     }
 }
