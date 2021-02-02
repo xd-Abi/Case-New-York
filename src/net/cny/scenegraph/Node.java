@@ -1,18 +1,16 @@
 package net.cny.scenegraph;
 
-import java.util.HashMap;
-
-import net.cny.Main;
-import net.cny.math.Transform;
-import net.cny.model.Mesh;
-import net.cny.pipeline.DefaultShaderProgram;
 import net.cny.image.Image;
+import net.cny.math.Transform;
 import org.joml.Vector2f;
+
+import java.util.HashMap;
 
 public class Node extends Transform
 {
 	private final HashMap<String, NodeComponent> components;
 	private final Image image;
+	private String tag;
 
 	public Node(Image image)
 	{
@@ -58,5 +56,15 @@ public class Node extends Transform
 	public Image GetImage()
 	{
 		return image;
+	}
+
+	public String GetTag()
+	{
+		return tag;
+	}
+
+	public void SetTag(String tag)
+	{
+		this.tag = tag;
 	}
 }

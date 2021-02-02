@@ -25,10 +25,10 @@ public class GuiClickListener extends NodeComponent
 	{
 		this.position = position;
 		this.scale = scale;
-		clickSound = new Sound(CLICK_SOUND, false);
+		clickSound = new Sound(CLICK_SOUND);
 		clickSound.SetPosition(position.x, position.y);
 
-		hoverSound = new Sound(CLICK_SOUND, false);
+		hoverSound = new Sound(CLICK_SOUND);
 		hoverSound.SetPosition(position.x, position.y);
 		hoverSound.SetPitch(4);
 	}

@@ -5,24 +5,22 @@ import net.cny.scenegraph.NodeComponent;
 import net.cny.util.SoundUtils;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.openal.AL10;
+import org.w3c.dom.Node;
 
 import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.IOException;
 import java.nio.IntBuffer;
 
-public class Sound extends NodeComponent
+public class Sound
 {
 
     private IntBuffer buffer;
     private int source;
     private long time;
 
-    public Sound(String soundPath, boolean followParent)
+    public Sound(String soundPath)
     {
         Initialize(soundPath);
-
-        if (followParent && getParent() != null)
-            SetPosition(getParent().GetTranslation().x, getParent().GetTranslation().y);
     }
 
     public void Initialize(String soundPath)
@@ -33,7 +31,7 @@ public class Sound extends NodeComponent
         try
         {
             SoundUtils.createBufferData(buffer.get(0), soundPath);
-            time = (buffer.get(0) + 1) * (long)Main.FRAME_CAP;
+            time = (buffer.get(0) + 1);
         }
         catch (UnsupportedAudioFileException | IOException e)
         {
@@ -67,7 +65,6 @@ public class Sound extends NodeComponent
         AL10.alSourceStop(source);
     }
 
-    @Override
     public void CleanUp()
     {
         Stop();
@@ -93,11 +90,5 @@ public class Sound extends NodeComponent
     public long GetTime()
     {
         return time;
-    }
-
-    @Override
-    public String GetType()
-    {
-        return "sound-component";
     }
 }

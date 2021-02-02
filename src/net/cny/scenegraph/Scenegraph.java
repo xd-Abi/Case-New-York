@@ -1,19 +1,18 @@
 package net.cny.scenegraph;
 
 import net.cny.Main;
-import net.cny.Main;
 
-import java.util.ArrayList;
+import java.util.HashMap;
 
 public class Scenegraph
 {
 
-	private final ArrayList<Node> objects;
+	private final HashMap<String, Node> objects;
 	private final Main.GameState state;
 
 	public Scenegraph(Main.GameState state)
 	{
-		this.objects = new ArrayList<>();
+		this.objects = new HashMap<>();
 		this.state = state;
 
 		Main.cny.SetState(state);
@@ -27,39 +26,39 @@ public class Scenegraph
 
 	public void Update(float delta)
 	{
-		for (Node object : objects)
-			object.Update(delta);
-	}
-	
-	public void Render() 
-	{
-		for (Node object : objects)
-			object.Render();
+		for (String key : objects.keySet())
+			GetNode(key).Update(delta);
 	}
 	
 	public void CleanUp() 
 	{
-		for (Node object : objects)
-			object.CleanUp();
+		for (String key : objects.keySet())
+			GetNode(key).CleanUp();
 	}
 
-	public Node GetNode(int index)
+	public Node GetNode(String key)
 	{
-		return objects.get(index);
+		return objects.get(key);
 	}
 
-	public void AddNode(Node object)
+	public void AddNode(String key, Node object)
 	{
-		objects.add(object);
+		objects.put(key, object);
 	}
 
-	public void RemoveNode(Node node)
+	public void Replace(String key, Node newObject)
 	{
-		node.CleanUp();
-		objects.remove(node);
+		objects.get(key).CleanUp();
+		objects.replace(key, newObject);
 	}
 
-	public ArrayList<Node> GetNodeObjects() {
+	public void RemoveNode(String key)
+	{
+		objects.get(key).CleanUp();
+		objects.remove(key);
+	}
+
+	public HashMap<String, Node> GetNodeObjects() {
 		return objects;
 	}
 

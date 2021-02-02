@@ -525,15 +525,15 @@ public class Main implements Runnable
     {
         ClearScreen();
 
-        for (Node node : scenegraph.GetNodeObjects())
+        for (String key : scenegraph.GetNodeObjects().keySet())
         {
             GL13.glActiveTexture(GL13.GL_TEXTURE0);
 
-            node.GetImage().Bind();
+            scenegraph.GetNode(key).GetImage().Bind();
             shaderProgram.Bind();
-            shaderProgram.SetUniform("worldMatrix", node.GetWorldMatrix());
+            shaderProgram.SetUniform("worldMatrix", scenegraph.GetNode(key).GetWorldMatrix());
             mesh.Draw();
-            node.GetImage().Unbind();
+            scenegraph.GetNode(key).GetImage().Unbind();
         }
 
         // Rendering the GLFW window
