@@ -550,6 +550,8 @@ class WindowCursor
 
         id = glfwCreateCursor(image, 0, 0);
         glfwSetCursor(window, this.id);
+
+        glfwSwapInterval(0);
     }
 
     public void Destroy()

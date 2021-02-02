@@ -5,6 +5,7 @@ import static org.lwjgl.glfw.GLFW.*;
 import java.util.ArrayList;
 
 import net.cny.Main;
+import net.cny.NewMain;
 import org.lwjgl.glfw.GLFWCursorPosCallback;
 import org.lwjgl.glfw.GLFWMouseButtonCallback;
 
@@ -31,8 +32,8 @@ public class Mouse extends GLFWMouseButtonCallback
 			}
 		};
 		
-		glfwSetMouseButtonCallback(Main.cny.GetWindow(), this);
-		glfwSetCursorPosCallback(Main.cny.GetWindow(), cursorPosCallback);
+		glfwSetMouseButtonCallback(NewMain.cny.GetWindowId(), this);
+		glfwSetCursorPosCallback(NewMain.cny.GetWindowId(), cursorPosCallback);
     }
 
     @Override
@@ -67,7 +68,7 @@ public class Mouse extends GLFWMouseButtonCallback
         return pushedButtons.contains(key);
     }
 
-    public static boolean IsButtonreleased(int key)
+    public static boolean IsButtonReleased(int key)
     {
         return releasedButtons.contains(key);
     }
@@ -87,11 +88,11 @@ public class Mouse extends GLFWMouseButtonCallback
     
     public static float GetOpenGLX()
     {
-    	return (2f* cursorX) / Main.cny.GetWidth() - 1;
+    	return (2f* cursorX) / NewMain.cny.GetDisplayWidth() - 1;
     }
     
     public static float GetOpenGLY()
     {
-    	return -((2f* cursorY) / Main.cny.GetHeight() - 1);
+    	return -((2f* cursorY) / NewMain.cny.GetDisplayHeight() - 1);
     }    
 }
