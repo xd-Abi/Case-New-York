@@ -683,6 +683,11 @@ public class Main implements Runnable
         this.delta = (float) 0.016666668;
     }
 
+    public static class ResourceLocation
+    {
+        public static final String SCENE_ONE = "scene/first/";
+    }
+
     public enum GameState
     {
         // Menus

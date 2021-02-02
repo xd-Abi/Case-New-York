@@ -1,6 +1,7 @@
 package net.cny.level;
 
 import net.cny.Main;
+import static net.cny.Main.ResourceLocation.SCENE_ONE;
 import net.cny.audio.Sound;
 import net.cny.gui.GuiBackground;
 import net.cny.gui.GuiTimedBackground;
@@ -23,9 +24,9 @@ public class FirstScene extends Scenegraph
     @Override
     public void Initialize()
     {
-        introBackground = new GuiTimedBackground("scene1/background/intro.png", 3);
+        introBackground = new GuiTimedBackground( SCENE_ONE + "background/intro.png", 3);
         introBackground.SetTag("notFinished");
-        currentSound = new Sound("scene1/williams.wav");
+        currentSound = new Sound(SCENE_ONE + "audio/williams.wav");
         AddNode("intro-background", introBackground);
     }
 
@@ -39,7 +40,7 @@ public class FirstScene extends Scenegraph
             RemoveNode("intro-background");
             introBackground.SetTag("Finished");
             System.out.println(currentSound.GetTime());
-            letterBackground = new GuiTimedBackground("scene1/background/letter.png", 64);
+            letterBackground = new GuiTimedBackground(SCENE_ONE + "background/letter.png", 64);
             letterBackground.SetTag("notFinished");
 
             AddNode("letter-background", letterBackground);
@@ -51,8 +52,8 @@ public class FirstScene extends Scenegraph
             RemoveNode("letter-background");
             letterBackground.SetTag("Finished");
 
-            currentSound = new Sound("scene1/train_sound.wav");
-            tsLondonBackground = new GuiTimedBackground("scene1/background/train_station.png", (int)currentSound.GetTime());
+            currentSound = new Sound(SCENE_ONE + "audio/train_sound.wav");
+            tsLondonBackground = new GuiTimedBackground(SCENE_ONE + "background/train_station.png", (int)currentSound.GetTime());
             tsLondonBackground.SetTag("notFinished");
 
             AddNode("ts-london-background", tsLondonBackground);
