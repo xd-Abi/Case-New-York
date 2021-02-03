@@ -65,6 +65,7 @@ public class Window extends GLFWWindowSizeCallback
         IconImages.put(0, image);
 
         glfwSetWindowIcon(id, IconImages);
+        glfwSetWindowSizeCallback(id, this);
         glfwSetWindowAspectRatio(id, 16, 9);
         glfwMakeContextCurrent(id);
         GL.createCapabilities();
