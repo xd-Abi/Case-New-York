@@ -5,7 +5,7 @@ import static org.lwjgl.opengl.GL15.*;
 import static org.lwjgl.opengl.GL20.*;
 import static org.lwjgl.opengl.GL30.*;
 
-import old.cny.util.BufferUtil;
+import net.cny.util.BufferUtil;
 import org.lwjgl.opengl.GL15;
 
 public class Mesh 

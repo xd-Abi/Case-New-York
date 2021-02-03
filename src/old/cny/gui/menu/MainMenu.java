@@ -1,7 +1,6 @@
 package old.cny.gui.menu;
-
-import old.cny.Main;
-import old.cny.audio.Sound;
+/*
+import net.cny.audio.Sound;
 import old.cny.gui.GuiBackground;
 import old.cny.gui.GuiButton;
 import old.cny.level.FirstScene;
@@ -58,3 +57,6 @@ public class MainMenu extends Scenegraph
 		super.CleanUp();
 	}
 }
+
+
+ */

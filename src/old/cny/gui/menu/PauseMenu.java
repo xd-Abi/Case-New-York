@@ -1,7 +1,6 @@
 package old.cny.gui.menu;
-
-import old.cny.Main;
-import old.cny.audio.Sound;
+/*
+import net.cny.audio.Sound;
 import old.cny.gui.GuiBackground;
 import old.cny.gui.GuiButton;
 import old.cny.scenegraph.Scenegraph;
@@ -9,6 +8,7 @@ import org.joml.Vector2f;
 
 import static old.cny.util.ResourceManager.MainMenu.*;
 import static old.cny.util.ResourceManager.PauseMenu.BACKGROUND;
+
 
 public class PauseMenu extends Scenegraph
 {
@@ -60,3 +60,4 @@ public class PauseMenu extends Scenegraph
 		super.CleanUp();
 	}
 }
+*/

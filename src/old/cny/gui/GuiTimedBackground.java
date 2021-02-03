@@ -1,7 +1,5 @@
 package old.cny.gui;
-
-import old.cny.Main;
-
+/*
 public class GuiTimedBackground extends GuiBackground
 {
 
@@ -43,3 +41,4 @@ public class GuiTimedBackground extends GuiBackground
         return isTimeFinished;
     }
 }
+*/

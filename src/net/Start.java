@@ -1,14 +1,17 @@
 package net;
 
-import old.cny.Main;
+import net.cny.Main;
+//import old.cny.Main;
 
 public class Start
 {
 	
 	public static void main(String[] args)
 	{
-	//	Main main = new Main();
-//		main.Start();
-		Main.cny.Start();
+		Main main = new Main();
+		main.Start();
+
+		// Redoing everything
+	//	Main.cny.Start();
 	}
 }

@@ -1,8 +1,7 @@
 package old.cny.level;
 
-import old.cny.Main;
-import static old.cny.Main.ResourceLocation.SCENE_ONE;
-import old.cny.audio.Sound;
+/*import static old.cny.Main.ResourceLocation.SCENE_ONE;
+import net.cny.audio.Sound;
 import old.cny.gui.GuiTimedBackground;
 import old.cny.scenegraph.Scenegraph;
 
@@ -82,3 +81,4 @@ public class FirstScene extends Scenegraph
         super.CleanUp();
     }
 }
+*/

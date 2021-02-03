@@ -1,6 +1,7 @@
 package old.cny.math;
 
 import org.joml.Vector3f;
+import net.cny.math.Matrix4f;
 
 public class Transform
 {
@@ -16,7 +17,7 @@ public class Transform
         SetScaling(new Vector3f(1,1,1));
     }
 
-    public Matrix4f GetWorldMatrix()
+    public net.cny.math.Matrix4f GetWorldMatrix()
     {
         Matrix4f translationMatrix = new Matrix4f().InitTranslation(translation.x, translation.y, translation.z);
         Matrix4f rotationMatrix = new Matrix4f().InitRotation(rotation.x, rotation.y, rotation.z);

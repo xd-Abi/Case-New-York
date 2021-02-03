@@ -1,5 +1,5 @@
 package old.cny.gui;
-
+/*
 import org.joml.Vector2f;
 
 public class GuiButton extends GuiBackground
@@ -25,3 +25,4 @@ public class GuiButton extends GuiBackground
 		return listener.IsPressed();
 	}
 }
+*/

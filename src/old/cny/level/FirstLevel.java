@@ -1,6 +1,5 @@
 package old.cny.level;
-
-import old.cny.Main;
+/*
 import old.cny.gui.GuiBackground;
 import old.cny.player.Player;
 import old.cny.scenegraph.Scenegraph;
@@ -20,3 +19,5 @@ public class FirstLevel extends Scenegraph
         AddNode("player",  new Player());
     }
 }
+
+ */

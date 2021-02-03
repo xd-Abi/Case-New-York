@@ -1,8 +1,12 @@
 package net.cny.platform;
 
+import net.cny.util.ImageLoader;
+import org.lwjgl.glfw.GLFWImage;
 import org.lwjgl.glfw.GLFWVidMode;
 import org.lwjgl.glfw.GLFWWindowSizeCallback;
 import org.lwjgl.opengl.GL;
+
+import java.nio.ByteBuffer;
 
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL11.*;
@@ -36,7 +40,7 @@ public class Window extends GLFWWindowSizeCallback
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
     }
 
-    public void Create(String iconPath)
+    public void Create(String iconPath, int iconWidth, int iconHeight)
     {
         id = glfwCreateWindow(width, height, title, 0, 0);
 
@@ -51,8 +55,22 @@ public class Window extends GLFWWindowSizeCallback
             glfwSetWindowPos(id, (vidMode.width() - width) / 2, (vidMode.height() - height) / 2);
         }
 
+        ByteBuffer buffer = ImageLoader.LoadImageToByteBuffer(iconPath);
+        GLFWImage image = GLFWImage.malloc();
+        image.set(iconWidth, iconHeight, buffer);
+
+        // Putting the GLFWImage in a buffer
+
+        GLFWImage.Buffer IconImages = GLFWImage.malloc(1);
+        IconImages.put(0, image);
+
+        glfwSetWindowIcon(id, IconImages);
+        glfwSetWindowAspectRatio(id, 16, 9);
         glfwMakeContextCurrent(id);
         GL.createCapabilities();
+
+        // Disabling Vsync
+        glfwSwapInterval(0);
     }
 
     @Override
@@ -81,6 +99,8 @@ public class Window extends GLFWWindowSizeCallback
 
     public void Shutdown()
     {
+        free();
+
         glfwDestroyWindow(id);
         glfwTerminate();
     }

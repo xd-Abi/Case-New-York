@@ -1,10 +1,10 @@
 package old.cny.gui;
-
+/*
 import static old.cny.util.ResourceManager.ButtonAudio.*;
 
-import old.cny.audio.Sound;
-import old.cny.platform.Mouse;
-import old.cny.scenegraph.NodeComponent;
+import net.cny.audio.Audio;
+import net.cny.platform.Mouse;
+import net.cny.scenegraph.NodeComponent;
 import org.joml.Vector2f;
 import org.lwjgl.glfw.GLFW;
 
@@ -16,8 +16,8 @@ public class GuiClickListener extends NodeComponent
 
 	private Vector2f position;
 	private Vector2f scale;
-	private final Sound clickSound;
-	private final Sound hoverSound;
+	private final Audio clickSound;
+	private final Audio hoverSound;
 
 	private boolean hoverSoundPlayed;
 
@@ -25,10 +25,10 @@ public class GuiClickListener extends NodeComponent
 	{
 		this.position = position;
 		this.scale = scale;
-		clickSound = new Sound(CLICK_SOUND);
+		clickSound = new Audio(CLICK_SOUND);
 		clickSound.SetPosition(position.x, position.y);
 
-		hoverSound = new Sound(CLICK_SOUND);
+		hoverSound = new Audio(CLICK_SOUND);
 		hoverSound.SetPosition(position.x, position.y);
 		hoverSound.SetPitch(4);
 	}
@@ -92,3 +92,4 @@ public class GuiClickListener extends NodeComponent
 		return "gui-click-listener";
 	}
 }
+*/

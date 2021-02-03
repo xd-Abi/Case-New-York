@@ -1,7 +1,7 @@
 package old.cny.player;
-
-import old.cny.platform.Keyboard;
-import old.cny.scenegraph.NodeComponent;
+/*
+import net.cny.platform.Keyboard;
+import net.cny.scenegraph.NodeComponent;
 import org.joml.Vector3f;
 import org.lwjgl.glfw.GLFW;
 
@@ -38,3 +38,4 @@ public class PlayerMovement extends NodeComponent
         return "player-movement-component";
     }
 }
+*/

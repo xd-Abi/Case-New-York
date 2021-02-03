@@ -1,13 +1,11 @@
 package old.cny.scenegraph;
 
-import old.cny.Main;
-
 import java.util.HashMap;
 
 public class Scenegraph
 {
 
-	private final HashMap<String, Node> objects;
+/*	private final HashMap<String, Node> objects;
 	private final Main.GameState state;
 
 	public Scenegraph(Main.GameState state)
@@ -66,4 +64,6 @@ public class Scenegraph
 	{
 		return state;
 	}
+
+ */
 }

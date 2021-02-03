@@ -1,7 +1,7 @@
 package old.cny.gui;
 
-import old.cny.image.Image;
-import old.cny.scenegraph.Node;
+import net.cny.image.Image;
+import net.cny.scenegraph.Node;
 import org.joml.Vector2f;
 
 public class GuiBackground extends Node
