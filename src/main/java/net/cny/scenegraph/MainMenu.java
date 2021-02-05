@@ -65,7 +65,7 @@ public class MainMenu extends Scenegraph
 */
         if (buttons[0].IsPressed())
         {
-            main.SetScenegraph(new FirstScene());
+            main.SetScenegraph(new FirstLevel());
         }
 
         if (buttons[2].IsPressed())

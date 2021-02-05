@@ -4,7 +4,8 @@ public enum GameState
 {
 
     MAIN_MENU,
-    FIRST_SCENE;
+    FIRST_SCENE,
+    LEVEL_1;
 
     public static GameState state;
 
