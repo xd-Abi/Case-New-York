@@ -4,18 +4,6 @@
     <artifactId>case-new-york</artifactId>
     <packaging>pom</packaging>
     <version>${cny.version}</version>
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>14</source>
-                    <target>14</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 
     <properties>
         <maven.compiler.source>1.8</maven.compiler.source>

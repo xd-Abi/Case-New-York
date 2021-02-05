@@ -33,15 +33,24 @@ public class SoundUtils
         switch(format.getChannels()) {
             case MONO:
                 switch (format.getSampleSizeInBits()) {
-                    case 8 -> openALFormat = AL10.AL_FORMAT_MONO8;
-                    case 16 -> openALFormat = AL10.AL_FORMAT_MONO16;
+                    case 8:
+                        openALFormat = AL10.AL_FORMAT_MONO8;
+                        break;
+                    case 16:
+                        openALFormat = AL10.AL_FORMAT_MONO16;
+                        break;
                 }
                 break;
             case STEREO:
-                openALFormat = switch (format.getSampleSizeInBits()) {
-                    case 8 -> AL10.AL_FORMAT_STEREO8;
-                    case 16 -> AL10.AL_FORMAT_STEREO16;
-                    default -> openALFormat;
+                switch (format.getSampleSizeInBits()) {
+                    case 8:
+                        openALFormat = AL10.AL_FORMAT_STEREO8;
+                        break;
+                    case 16:
+                        openALFormat = AL10.AL_FORMAT_STEREO16;
+                        break;
+                    default:
+                        break;
                 };
                 break;
         }
