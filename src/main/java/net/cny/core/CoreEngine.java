@@ -20,9 +20,8 @@ public class CoreEngine
     private int height;
     private String title;
 
-    private int iconWidth;
-    private int iconHeight;
     private String iconPath;
+    private String cursorPath;
 
     private Window window;
     private Cursor cursor;
@@ -44,11 +43,10 @@ public class CoreEngine
         CoreEngine.frameCap = frameCap;
     }
 
-    public void CreateIcon(String iconPath, int iconWidth, int iconHeight)
+    public void CreateIcon(String iconPath, String cursorPath)
     {
         this.iconPath = iconPath;
-        this.iconWidth = iconWidth;
-        this.iconHeight = iconHeight;
+        this.cursorPath = cursorPath;
     }
 
     public void Start()
@@ -76,9 +74,9 @@ public class CoreEngine
     {
         window = new Window(width, height, title);
         window.Initialize();
-        window.Create(iconPath, iconWidth, iconHeight);
+        window.Create(iconPath);
 
-        cursor = new Cursor(window, "cursor.png");
+        cursor = new Cursor(window, cursorPath);
         mouse = new Mouse(window, cursor);
         keyboard = new Keyboard(window.GetId());
 

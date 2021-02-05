@@ -1,7 +1,11 @@
 package net.cny;
 
 import net.cny.core.CoreEngine;
+import net.cny.core.util.ResourceLoader;
 import net.cny.scenegraph.MainMenu;
+
+import java.io.IOException;
+import java.util.Properties;
 
 public class Main extends CoreEngine implements Runnable
 {
@@ -18,8 +22,27 @@ public class Main extends CoreEngine implements Runnable
     @Override
     public void run()
     {
-        CreateWindow(1280, 720, "TEST", 60);
-        CreateIcon("icon.png", 250, 250);
+        Properties properties = new Properties();
+        try
+        {
+            properties.load(ResourceLoader.GetResource("cny-properties.net"));
+        } catch (IOException e)
+        {
+            e.printStackTrace();
+        }
+
+        int displayWidth = Integer.parseInt(properties.getProperty("displayWidth"));
+        int displayHeight = Integer.parseInt(properties.getProperty("displayHeight"));
+        String displayTittle = properties.getProperty("displayTitle");
+        String version = properties.getProperty("version");
+
+        String iconPath = properties.getProperty("iconPath");
+        String cursorPath = properties.getProperty("cursorPath");
+
+        double frameRate = Double.parseDouble(properties.getProperty("frameRate"));
+
+        CreateWindow(displayWidth, displayHeight, displayTittle + " | " + version, frameRate);
+        CreateIcon(iconPath, cursorPath);
         Start();
     }
 
