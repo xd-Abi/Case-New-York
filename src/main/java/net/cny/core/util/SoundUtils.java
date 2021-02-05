@@ -19,11 +19,10 @@ public class SoundUtils
 
         final int MONO = 1, STEREO = 2;
 
-        AudioInputStream stream = null;
-
         InputStream audioSrc = ResourceLoader.GetResource(soundPath);
+        assert audioSrc != null;
         InputStream bufferedIn = new BufferedInputStream(audioSrc);
-        stream = AudioSystem.getAudioInputStream(bufferedIn);
+        AudioInputStream stream = AudioSystem.getAudioInputStream(bufferedIn);
 
 
         AudioFormat format = stream.getFormat();
@@ -51,7 +50,7 @@ public class SoundUtils
                         break;
                     default:
                         break;
-                };
+                }
                 break;
         }
 
