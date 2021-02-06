@@ -26,7 +26,7 @@ public class FirstLevel extends Scenegraph
         Add("background", new GuiBackground("level/one/background.png"));
         Add("background2", new GuiBackground("level/one/msg.png"));
 
-        backgroundAudio = new Audio("menu/main/background_audio.wav");
+        backgroundAudio = new Audio("level/one/bg_audio.wav");
         backgroundAudio.Play();
 
         Add("invent_one", new GuiBackground("inventory/inventory.png", -0.95f, 0.1f, 0.15f, 0.25f));
