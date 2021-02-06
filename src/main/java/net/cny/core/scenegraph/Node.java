@@ -43,7 +43,7 @@ public class Node extends Transform
 	public void SetTransformation(float p1, float p2, float s1, float s2)
 	{
 		SetTranslation(p1 + s1 / 2, p2 + s2 / 2, 0);
-		SetScaling(s1, s2, 1);
+		SetScaling(s1, s2, 0);
 	}
 
 	public Image GetImage()
