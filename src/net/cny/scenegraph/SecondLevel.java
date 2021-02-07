@@ -39,7 +39,8 @@ public class SecondLevel extends Scenegraph{
 	{
 		super.Initialize();
 		
-		backgroundAudio = new Audio(PATH + "backgroundAudio.wav");
+		backgroundAudio = new Audio(PATH + "background_audio.wav");
+		backgroundAudio.SetGain(0.8f);
 		backgroundAudio.Play();
 		
 		ko_cl = new GuiButton(0.42f, -0.45f, 0.03f, 0.031f, false);
@@ -54,7 +55,6 @@ public class SecondLevel extends Scenegraph{
 		{
 			Replace("invent_one", new GuiBackground(PATH + "inventory/ko.png", -0.95f, 0.35f, 0.14f, 0.25f));	
 			Remove("background2");
-			System.out.print("TEST");
 		}
 		
 		super.Update();
