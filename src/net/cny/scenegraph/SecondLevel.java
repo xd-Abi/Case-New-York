@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.cny.core.audio.Audio;
 import net.cny.core.platform.Mouse;
 import net.cny.core.scenegraph.Node;
 import net.cny.core.scenegraph.Scenegraph;
@@ -16,6 +17,7 @@ public class SecondLevel extends Scenegraph{
 	private static final String INVENTORY_PATH = "inventory/inventory.png";
 	
 	private GuiButton ko_cl;
+	private Audio backgroundAudio;
 	
 	@Override
 	public Map<String, Node> CreateMap() 
@@ -23,9 +25,11 @@ public class SecondLevel extends Scenegraph{
 		
 		Map<String, Node> objects = new HashMap<>();
 		
-		objects.put("test", new GuiBackground(PATH + "background.png"));
-	    objects.put("invent_one", new GuiBackground(INVENTORY_PATH, -0.95f, 0.35f, 0.14f, 0.25f));
-		
+		objects.put("background", new GuiBackground(PATH + "background.png"));
+	    objects.put("background2", new GuiBackground("level/one/msg.png"));
+		objects.put("invent_one", new GuiBackground(INVENTORY_PATH, -0.95f, 0.35f, 0.14f, 0.25f));
+	    
+	    
 		return objects;
 	}
 	
@@ -34,6 +38,10 @@ public class SecondLevel extends Scenegraph{
 	public void Initialize() 
 	{
 		super.Initialize();
+		
+		backgroundAudio = new Audio(PATH + "backgroundAudio.wav");
+		backgroundAudio.Play();
+		
 		ko_cl = new GuiButton(0.42f, -0.45f, 0.03f, 0.031f, false);
 	}
 	
@@ -45,10 +53,17 @@ public class SecondLevel extends Scenegraph{
 		if (ko_cl.IsPressed() && ko_cl.GetTag() == null)
 		{
 			Replace("invent_one", new GuiBackground(PATH + "inventory/ko.png", -0.95f, 0.35f, 0.14f, 0.25f));	
+			Remove("background2");
 			System.out.print("TEST");
 		}
 		
 		super.Update();
-		System.out.println(Mouse.GetOpenGLX() + " " + Mouse.GetOpenGLY());
+	//	System.out.println(Mouse.GetOpenGLX() + " " + Mouse.GetOpenGLY());
+	}
+	
+	@Override
+	public void CleanUp() {
+		backgroundAudio.Play();
+		super.CleanUp();
 	}
 }
