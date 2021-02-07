@@ -37,9 +37,9 @@ public class MainMenu extends Scenegraph
 
         buttons = new GuiButton[3];
 
-        buttons[0] = new GuiButton("menu/main/play-button.png", -0.9f, -0.3f,0.4f, 0.17f);
-        buttons[1] =new GuiButton("menu/main/settings-button.png", -0.9f, -0.52f, 0.4f, 0.17f);
-        buttons[2] =new GuiButton("menu/main/quit-button.png", -0.9f, -0.74f, 0.4f, 0.17f);
+        buttons[0] = new GuiButton("menu/main/play-button.png", -0.9f, -0.3f,0.4f, 0.17f, true);
+        buttons[1] =new GuiButton("menu/main/settings-button.png", -0.9f, -0.52f, 0.4f, 0.17f, true);
+        buttons[2] =new GuiButton("menu/main/quit-button.png", -0.9f, -0.74f, 0.4f, 0.17f, true);
 
         for (GuiButton button : buttons)
             button.SetTranslation(xPos, button.GetTranslation().y, 0);

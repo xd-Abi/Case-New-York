@@ -20,4 +20,13 @@ public class GuiBackground extends Node
 
         SetTransformation(p1,p2,s1,s2);
     }
+
+    public GuiBackground(float p1, float p2, float s1, float s2)
+    {
+        super(null);
+
+        SetTransformation(p1,p2,s1,s2);
+    }
+
+
 }

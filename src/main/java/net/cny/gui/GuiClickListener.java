@@ -14,15 +14,21 @@ public class GuiClickListener extends NodeComponent
 
     private final Vector2f position;
     private final Vector2f scale;
-    private final Audio clickSound;
-    private final Audio hoverSound;
+    private Audio clickSound;
+    private Audio hoverSound;
 
     private boolean hoverSoundPlayed;
+    private final boolean playSound;
 
-    public GuiClickListener(Vector2f position, Vector2f scale)
+    public GuiClickListener(Vector2f position, Vector2f scale, boolean playSound)
     {
         this.position = position;
         this.scale = scale;
+        this.playSound = playSound;
+
+       if (!playSound)
+           return;
+
         clickSound = new Audio("gui/button/click_sound.wav");
         clickSound.SetPosition(position.x, position.y);
 
@@ -42,7 +48,10 @@ public class GuiClickListener extends NodeComponent
 
             if (Mouse.IsButtonPushed(GLFW.GLFW_MOUSE_BUTTON_1))
             {
-                clickSound.Play();
+
+                if(playSound)
+                    clickSound.Play();
+
                 isPressed = true;
             }
 
@@ -54,7 +63,10 @@ public class GuiClickListener extends NodeComponent
         }
 
         if (isHover && !hoverSoundPlayed){
+
+          if (playSound)
             hoverSound.Play();
+
             hoverSoundPlayed = true;
         }
 
@@ -76,6 +88,12 @@ public class GuiClickListener extends NodeComponent
     {
         return isPressed;
     }
+
+    public void SetPressed(boolean a)
+    {
+         isPressed = a;
+    }
+
 
     @Override
     public void CleanUp() {
