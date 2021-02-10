@@ -1,8 +1,11 @@
 package net.cny.scenegraph;
 
+import java.util.Map;
+
 import net.cny.core.CoreEngine;
 import net.cny.core.audio.Audio;
 import net.cny.gui.GuiBackground;
+import net.cny.core.scenegraph.Node;
 import net.cny.core.scenegraph.Scenegraph;
 import net.cny.state.GameState;
 
@@ -76,4 +79,10 @@ public class FirstScene extends Scenegraph
         if (timer != -1)
             timer --;
     }
+
+	@Override
+	public Map<String, Node> CreateMap() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
