@@ -2,6 +2,7 @@ package net.cny.scenegraph;
 
 import static org.lwjgl.glfw.GLFW.*;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,6 +19,7 @@ public class FirstLevel extends Scenegraph
 {
 
 	private static final String PATH = "level/one/";
+	private static final String AUDIOPATH = "level/one/audio/";
 	private static final String INVENTORY_PATH = "inventory/inventory.png";
 	
 	private boolean isLockShown;
@@ -43,7 +45,10 @@ public class FirstLevel extends Scenegraph
 	
 	private Map<String, GuiButton> buttons;	
     private Audio backgroundAudio;
-    private Audio beepSound;
+   
+    private Audio dialog;
+    private long dialogTime;
+     private Audio beepSound;
     private GuiBackground codeLock;
 
     private final Main main;
@@ -73,15 +78,19 @@ public class FirstLevel extends Scenegraph
     {
     	super.Initialize();
     	
-        backgroundAudio = new Audio(PATH + "bg_audio.wav");
-        backgroundAudio.SetGain(0.6f);
+        backgroundAudio = new Audio(AUDIOPATH + "bg_audio.wav");
+        backgroundAudio.SetGain(0.1f);
         backgroundAudio.Play();
 
         
-        beepSound = new Audio(PATH + "beep_sound.wav");
+        beepSound = new Audio(AUDIOPATH + "beep_sound.wav");
         
         buttons = CreateClickListeners();
         codeLock = new GuiBackground("level/one/code_lock.png", 0.1f, -0.9f, 0.6f, 1.8f);
+        
+        dialog = new Audio(AUDIOPATH + "begin.wav");
+        dialogTime = 24 * (int)Main.frameCap;
+        dialog.Play();
     }
     
     private Map<String, GuiButton> CreateClickListeners()
@@ -101,6 +110,12 @@ public class FirstLevel extends Scenegraph
         
     	super.Update();
 
+    	if (dialogTime != 0)
+    	{
+    		dialogTime--;
+    		return;
+    	}
+    	
     	if (is5Pressed)
     	{
     		main.SetScenegraph(new SecondLevel());
@@ -154,7 +169,7 @@ public class FirstLevel extends Scenegraph
     		{
 				case "shoe-print":
 					
-					Replace("invent_one", new GuiBackground(PATH + "inventory/shoe_print.png", -0.95f, 0.35f, 0.14f, 0.25f));	
+					Replace("invent_one", new GuiBackground(PATH + "inventory/shoe_print.png", -0.95f, 0.35f, 0.14f, 0.25f));					
 					button.SetTag("replaced");
 					break;
 				case "rope-2-m":
@@ -163,6 +178,7 @@ public class FirstLevel extends Scenegraph
 		        	break;
 				case "rope-5-m":
 			      	Replace("invent_third", new GuiBackground(PATH + "inventory/5_m_rope.png", -0.95f, -0.25f, 0.14f, 0.25f));	
+			      	      	
 			      	button.SetTag("replaced");
 		        	break;
 		        
@@ -188,6 +204,9 @@ public class FirstLevel extends Scenegraph
     @Override
     public void CleanUp()
     {
+    	
+    	
+    	dialog.CleanUp();
         backgroundAudio.CleanUp();
         super.CleanUp();
     }

@@ -10,6 +10,7 @@ import java.util.Properties;
 public class Main extends CoreEngine implements Runnable
 {
 
+	public static double frameCap;
     private final Thread thread;
 
     public Main()
@@ -39,9 +40,9 @@ public class Main extends CoreEngine implements Runnable
         String iconPath = properties.getProperty("iconPath");
         String cursorPath = properties.getProperty("cursorPath");
 
-        double frameRate = Double.parseDouble(properties.getProperty("frameRate"));
+        frameCap = Double.parseDouble(properties.getProperty("frameRate"));
 
-        CreateWindow(displayWidth, displayHeight, displayTittle + " | " + version, frameRate);
+        CreateWindow(displayWidth, displayHeight, displayTittle + " | " + version, frameCap);
         CreateIcon(iconPath, cursorPath);
         Start();
     }
