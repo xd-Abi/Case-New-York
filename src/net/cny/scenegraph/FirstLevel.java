@@ -1,8 +1,16 @@
 package net.cny.scenegraph;
 
-import static org.lwjgl.glfw.GLFW.*;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_0;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_1;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_2;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_3;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_4;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_5;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_6;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_7;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_8;
+import static org.lwjgl.glfw.GLFW.GLFW_KEY_9;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -116,9 +124,9 @@ public class FirstLevel extends Scenegraph
     		return;
     	}
     	
-    	if (is5Pressed)
-    	{
-    		main.SetScenegraph(new SecondLevel());
+    	if (is5Pressed && dialogTime == 0)
+    	{	
+    			main.SetScenegraph(new FirstLevelScene(main));
     	}
     	
         if (isLockShown)
@@ -153,6 +161,12 @@ public class FirstLevel extends Scenegraph
 		}
 		else if (Keyboard.IsKeyPushed(GLFW_KEY_5) && !is5Pressed && is6Pressed && is2Pressed)
 		{
+    		dialog = new Audio(AUDIOPATH + "end.wav");
+    		dialog.Play();
+    		
+    		dialogTime = 6 * (int) Main.frameCap;
+    	
+			
 			is5Pressed = true;
 			System.out.println("TEST");
 		}
@@ -187,11 +201,12 @@ public class FirstLevel extends Scenegraph
 					if (buttons.get("shoe-print").IsPressed() && buttons.get("rope-2-m").IsPressed() &&
 						buttons.get("rope-5-m").IsPressed())
 					{
-						
+					
 						Remove("background2");
 			        	Add("door-lock", codeLock);
 				      	button.SetTag("replaced");
-						isLockShown = true;
+									      	
+				      	isLockShown = true;
 					}
 					else
 					{

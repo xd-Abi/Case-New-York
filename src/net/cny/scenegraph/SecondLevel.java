@@ -4,6 +4,7 @@ import java.awt.Button;
 import java.util.HashMap;
 import java.util.Map;
 
+import net.cny.Main;
 import net.cny.core.audio.Audio;
 import net.cny.core.platform.Mouse;
 import net.cny.core.scenegraph.Node;
@@ -18,6 +19,10 @@ public class SecondLevel extends Scenegraph{
 	
 	private GuiButton ko_cl;
 	private Audio backgroundAudio;
+
+	public SecondLevel(Main main) {
+	
+	}
 	
 	@Override
 	public Map<String, Node> CreateMap() 
