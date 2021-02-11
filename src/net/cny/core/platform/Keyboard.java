@@ -18,6 +18,7 @@ public class Keyboard extends GLFWKeyCallback
 		glfwSetKeyCallback(window, this);
 	}
 
+	@SuppressWarnings("deprecation")
 	@Override
 	public void invoke(long window, int key, int scancode, int action, int mods) {
 		if (action == GLFW_PRESS){

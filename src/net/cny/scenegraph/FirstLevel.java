@@ -53,9 +53,6 @@ public class FirstLevel extends Scenegraph
 	
 	private Map<String, GuiButton> buttons;	
     private Audio backgroundAudio;
-   
-    private Audio dialog;
-    private long dialogTime;
      private Audio beepSound;
     private GuiBackground codeLock;
 
@@ -87,7 +84,7 @@ public class FirstLevel extends Scenegraph
     	super.Initialize();
     	
         backgroundAudio = new Audio(AUDIOPATH + "bg_audio.wav");
-        backgroundAudio.SetGain(0.1f);
+        backgroundAudio.SetGain(0.4f);
         backgroundAudio.Play();
 
         
@@ -95,18 +92,14 @@ public class FirstLevel extends Scenegraph
         
         buttons = CreateClickListeners();
         codeLock = new GuiBackground("level/one/code_lock.png", 0.1f, -0.9f, 0.6f, 1.8f);
-        
-        dialog = new Audio(AUDIOPATH + "begin.wav");
-        dialogTime = 24 * (int)Main.frameCap;
-        dialog.Play();
     }
     
     private Map<String, GuiButton> CreateClickListeners()
     {
     	Map<String, GuiButton> map = new HashMap<>();
-    	map.put("shoe-print", new GuiButton(-0.63f, 0.07f, 0.03f, 0.04f, false));
-    	map.put("rope-2-m", new GuiButton(-0.01f, -0.06f, 0.06f, 0.034f, false));
-    	map.put("rope-5-m",  new GuiButton(-0.25f, -0.68f, 0.016f, 0.06f, false));
+    	map.put("shoe-print", new GuiButton(-0.65f, 0.06f, 0.06f, 0.06f, false));
+    	map.put("rope-2-m", new GuiButton(-0.05f, -0.07f, 0.03f, 0.034f, false));
+    	map.put("rope-5-m",  new GuiButton(-0.29f, -0.67f, 0.06f, 0.06f, false));
     	map.put("door-lock", new GuiButton(0.77f, 0.26f, 0.03f,0.11f, false));
     	
     	return map;
@@ -118,17 +111,9 @@ public class FirstLevel extends Scenegraph
         
     	super.Update();
 
-    	if (dialogTime != 0)
-    	{
-    		dialogTime--;
-    		return;
-    	}
-    	
-    	if (is5Pressed && dialogTime == 0)
-    	{	
-    			main.SetScenegraph(new FirstLevelScene(main));
-    	}
-    	
+    	if (is5Pressed)
+    			main.SetScenegraph(new SecondLevel(main));
+ 
         if (isLockShown)
         {
         	UpdateLock();
@@ -161,12 +146,6 @@ public class FirstLevel extends Scenegraph
 		}
 		else if (Keyboard.IsKeyPushed(GLFW_KEY_5) && !is5Pressed && is6Pressed && is2Pressed)
 		{
-    		dialog = new Audio(AUDIOPATH + "end.wav");
-    		dialog.Play();
-    		
-    		dialogTime = 6 * (int) Main.frameCap;
-    	
-			
 			is5Pressed = true;
 			System.out.println("TEST");
 		}
@@ -219,9 +198,7 @@ public class FirstLevel extends Scenegraph
     @Override
     public void CleanUp()
     {
-    	
-    	
-    	dialog.CleanUp();
+    	beepSound.CleanUp();
         backgroundAudio.CleanUp();
         super.CleanUp();
     }

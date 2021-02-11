@@ -24,7 +24,8 @@ public class Mouse extends GLFWMouseButtonCallback
 		glfwSetMouseButtonCallback(window.GetId(), this);
 	 }
 
-    @Override
+    @SuppressWarnings("deprecation")
+	@Override
     public void invoke(long window, int button, int action, int mods) {
         if (action == GLFW_PRESS){
             if (!pushedButtons.contains(button)){

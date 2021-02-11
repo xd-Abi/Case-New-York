@@ -1,12 +1,10 @@
 package net.cny.scenegraph;
 
-import java.awt.Button;
 import java.util.HashMap;
 import java.util.Map;
 
 import net.cny.Main;
 import net.cny.core.audio.Audio;
-import net.cny.core.platform.Mouse;
 import net.cny.core.scenegraph.Node;
 import net.cny.core.scenegraph.Scenegraph;
 import net.cny.gui.GuiBackground;
